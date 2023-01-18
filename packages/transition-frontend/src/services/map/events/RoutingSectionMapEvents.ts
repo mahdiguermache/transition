@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import MapboxGL from 'mapbox-gl';
+import maplibregl from 'maplibre-gl';
 import _uniq from 'lodash.uniq';
 
 import { MapEventHandlerDescription } from 'chaire-lib-frontend/lib/services/map/IMapEventHandler';
@@ -14,12 +14,12 @@ import serviceLocator from 'chaire-lib-common/lib/utils/ServiceLocator';
 
 const isRoutingActiveSection = (activeSection: string) => activeSection === 'routing';
 
-const onRoutingSectionMapClick = (e: MapboxGL.MapMouseEvent) => {
+const onRoutingSectionMapClick = (e: maplibregl.MapMouseEvent) => {
     serviceLocator.eventManager.emit('routing.transit.clickedOnMap', e.lngLat.toArray());
     e.originalEvent.stopPropagation();
 };
 
-const onRoutingPointMouseDown = (e: MapboxGL.MapLayerMouseEvent) => {
+const onRoutingPointMouseDown = (e: maplibregl.MapLayerMouseEvent) => {
     const features = e.features;
     if (!features || features.length === 0) {
         return;
@@ -37,7 +37,7 @@ const onRoutingPointMouseDown = (e: MapboxGL.MapLayerMouseEvent) => {
     }
 };
 
-const onRoutingPointMouseUp = (e: MapboxGL.MapMouseEvent) => {
+const onRoutingPointMouseUp = (e: maplibregl.MapMouseEvent) => {
     const map = e.target as any;
     if (map._currentDraggingFeature === 'routingOrigin' || map._currentDraggingFeature === 'routingDestination') {
         serviceLocator.eventManager.emit(
@@ -51,7 +51,7 @@ const onRoutingPointMouseUp = (e: MapboxGL.MapMouseEvent) => {
     }
 };
 
-const onRoutingPointMouseMove = (e: MapboxGL.MapMouseEvent) => {
+const onRoutingPointMouseMove = (e: maplibregl.MapMouseEvent) => {
     const map = e.target as any;
     if (map._currentDraggingFeature === 'routingOrigin') {
         serviceLocator.eventManager.emit('routing.transit.dragOrigin', e.lngLat.toArray());
@@ -62,7 +62,7 @@ const onRoutingPointMouseMove = (e: MapboxGL.MapMouseEvent) => {
     }
 };
 
-const onRoutingSectionContextMenu = (e: MapboxGL.MapMouseEvent) => {
+const onRoutingSectionContextMenu = (e: maplibregl.MapMouseEvent) => {
     serviceLocator.eventManager.emit('map.showContextMenu', e, [
         {
             title: 'transit:transitRouting:contextMenu:SetAsOrigin',
@@ -76,17 +76,17 @@ const onRoutingSectionContextMenu = (e: MapboxGL.MapMouseEvent) => {
 };
 
 const routingSectionEventDescriptors: MapEventHandlerDescription[] = [
-    { type: 'map', eventName: 'click', condition: isRoutingActiveSection, handler: onRoutingSectionMapClick },
-    { type: 'map', eventName: 'contextmenu', condition: isRoutingActiveSection, handler: onRoutingSectionContextMenu },
+    { type: 'map', eventName: 'click', condition: isRoutingActiveSection, handler: onRoutingSectionMapClick as any },
+    { type: 'map', eventName: 'contextmenu', condition: isRoutingActiveSection, handler: onRoutingSectionContextMenu as any },
     {
         type: 'layer',
         eventName: 'mousedown',
         layerName: 'routingPoints',
         condition: isRoutingActiveSection,
-        handler: onRoutingPointMouseDown
+        handler: onRoutingPointMouseDown as any
     },
-    { type: 'map', eventName: 'mouseup', condition: isRoutingActiveSection, handler: onRoutingPointMouseUp },
-    { type: 'map', eventName: 'mousemove', condition: isRoutingActiveSection, handler: onRoutingPointMouseMove }
+    { type: 'map', eventName: 'mouseup', condition: isRoutingActiveSection, handler: onRoutingPointMouseUp as any },
+    { type: 'map', eventName: 'mousemove', condition: isRoutingActiveSection, handler: onRoutingPointMouseMove as any }
 ];
 
 export default routingSectionEventDescriptors;

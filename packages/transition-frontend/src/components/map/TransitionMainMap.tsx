@@ -7,7 +7,6 @@
 import React from 'react';
 import ReactDom from 'react-dom';
 import { withTranslation } from 'react-i18next';
-import MapboxGL from 'mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import { default as elementResizedEvent, unbind as removeResizeListener } from 'element-resize-event';
 
@@ -28,8 +27,8 @@ import _cloneDeep from 'lodash.clonedeep';
 import { featureCollection as turfFeatureCollection } from '@turf/turf';
 import { LayoutSectionProps } from 'chaire-lib-frontend/lib/services/dashboard/DashboardContribution';
 import { MapEventHandlerDescription } from 'chaire-lib-frontend/lib/services/map/IMapEventHandler';
-
-MapboxGL.accessToken = process.env.MAPBOX_ACCESS_TOKEN || '';
+import maplibregl from 'maplibre-gl';
+import { LngLatBoundsLike } from 'maplibre-gl';
 
 export interface MainMapProps extends LayoutSectionProps {
     zoom: number;
@@ -56,7 +55,7 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
     private defaultZoomArray: [number];
     private defaultCenter: [number, number];
     private mapEvents: { [key: string]: { [key: string]: MapEventHandlerDescription[] } };
-    private map: MapboxGL.Map | undefined;
+    private map: maplibregl.Map | undefined;
     private popupManager: MapPopupManager;
     private mapContainer;
     private draw: MapboxDraw | undefined;
@@ -94,7 +93,7 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
         });
     }
 
-    fitBounds = (coordinates: [number, number]) => {
+    fitBounds = (coordinates: LngLatBoundsLike) => {
         this.map?.fitBounds(coordinates, {
             padding: 20,
             bearing: this.map.getBearing()
@@ -121,7 +120,7 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
         this.map?.dragPan.disable();
     };
 
-    setMap = (e: MapboxGL.MapboxEvent) => {
+    setMap = (e: maplibregl.MapLibreEvent) => {
         this.layerManager.setMap(e.target);
         this.popupManager.setMap(e.target);
         this.layerManager.updateEnabledLayers(this.state.layers);
@@ -186,16 +185,16 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
     };
 
     componentDidMount = () => {
-        this.map = new MapboxGL.Map({
+        this.map = new maplibregl.Map({
             container: this.mapContainer,
-            style: `mapbox://styles/${process.env.MAPBOX_USER_ID}/${process.env.MAPBOX_STYLE_ID}?fresh=true`,
+            style: 'https://api.maptiler.com/maps/streets-v2/style.json?key=KCeJQzbtFLZLuRRf900z',
             center: this.defaultCenter,
             zoom: this.defaultZoomArray[0],
             maxZoom: 20,
             hash: true
         });
 
-        this.map.addControl(new MapboxGL.ScaleControl(), 'bottom-right');
+        this.map.addControl(new maplibregl.ScaleControl({maxWidth: undefined}), 'bottom-right');
 
         for (const eventName in this.mapEvents) {
             for (const layerName in this.mapEvents[eventName]) {
@@ -447,7 +446,7 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
         }
     };
 
-    addPopup = (popupId: string, popup: MapboxGL.Popup, removeAll = true) => {
+    addPopup = (popupId: string, popup: maplibregl.Popup, removeAll = true) => {
         this.hideContextMenu();
         if (removeAll) {
             this.removeAllPopups();
@@ -520,7 +519,7 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
             <section id="tr__main-map">
                 <div id="tr__main-map-context-menu" className="tr__main-map-context-menu"></div>
                 {this.props.children}
-                <div id="mapboxgl-map" ref={this.setRef} style={{ height: '100%', width: '100%' }}></div>
+                <div id="maplibregl-map" ref={this.setRef} style={{ height: '100%', width: '100%' }}></div>
                 {this.state.confirmModalDeleteIsOpen && (
                     <ConfirmModal
                         title={this.props.t('transit:transitNode:ConfirmMultipleDelete')}

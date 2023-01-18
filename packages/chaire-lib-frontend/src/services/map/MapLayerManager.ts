@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import MapboxGL from 'mapbox-gl';
+import maplibregl from 'maplibre-gl';
 import { featureCollection as turfFeatureCollection } from '@turf/turf';
 import _uniq from 'lodash.uniq';
 
@@ -20,7 +20,7 @@ const defaultGeojson = turfFeatureCollection([]);
  * TODO: If we want to support multiple map implementation, this layer management will have to be updated
  */
 class MapboxLayerManager {
-    private _map: MapboxGL.Map | undefined;
+    private _map: maplibregl.Map | undefined;
     private _layersByName: { [key: string]: any } = {};
     private _enabledLayers: string[] = [];
     private _defaultFilterByLayer = {};
@@ -59,7 +59,7 @@ class MapboxLayerManager {
     }
 
     // TODO Consider deprecating and adding the map on the constructor only
-    setMap(map: MapboxGL.Map) {
+    setMap(map: maplibregl.Map) {
         this._map = map;
     }
 
@@ -171,7 +171,7 @@ class MapboxLayerManager {
     }
 
     getLayer(layerName: string) {
-        return this._map?.getLayer(layerName);
+        return this._map?.getLayer(layerName) as any;
     }
 
     getNextLayerName(layerName: string) {
@@ -215,7 +215,7 @@ class MapboxLayerManager {
         this._layersByName[layerName].source.data = newGeojson;
 
         if (this._map && this.layerIsEnabled(layerName)) {
-            (this._map.getSource(layerName) as MapboxGL.GeoJSONSource).setData(
+            (this._map.getSource(layerName) as maplibregl.GeoJSONSource).setData(
                 this._layersByName[layerName].source.data
             );
             if (this._layersByName[layerName].layer.repaint === true) {
@@ -237,7 +237,7 @@ class MapboxLayerManager {
                         : defaultGeojson;
             this._layersByName[layerName].source.data = newGeojson;
             if (this._map && this.layerIsEnabled(layerName)) {
-                (this._map.getSource(layerName) as MapboxGL.GeoJSONSource).setData(
+                (this._map.getSource(layerName) as maplibregl.GeoJSONSource).setData(
                     this._layersByName[layerName].source.data
                 );
                 if (this._layersByName[layerName].layer.repaint === true) {

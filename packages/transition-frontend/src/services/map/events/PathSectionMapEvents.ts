@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import MapboxGL from 'mapbox-gl';
+import maplibregl from 'maplibre-gl';
 import _uniq from 'lodash.uniq';
 
 import { MapEventHandlerDescription } from 'chaire-lib-frontend/lib/services/map/IMapEventHandler';
@@ -17,7 +17,7 @@ import { unhoverPath } from './PathLayerMapEvents';
 
 const isAgenciesActiveSection = (activeSection: string) => activeSection === 'agencies';
 
-const onPathWaypointMouseDown = (e: MapboxGL.MapLayerMouseEvent) => {
+const onPathWaypointMouseDown = (e: maplibregl.MapLayerMouseEvent) => {
     // start drag:
     const removingWaypoint = serviceLocator.keyboardManager.keyIsPressed('alt');
     if (e.features && e.features[0] && !removingWaypoint) {
@@ -29,7 +29,7 @@ const onPathWaypointMouseDown = (e: MapboxGL.MapLayerMouseEvent) => {
     }
 };
 
-const onPathWaypointMouseUp = (e: MapboxGL.MapMouseEvent) => {
+const onPathWaypointMouseUp = (e: maplibregl.MapMouseEvent) => {
     const map = e.target as any;
     // stop drag if on edit node:
     if (map._currentDraggingFeature === 'waypoint') {
@@ -60,7 +60,7 @@ const onPathWaypointMouseUp = (e: MapboxGL.MapMouseEvent) => {
     }
 };
 
-const onPathWaypointMouseMove = (e: MapboxGL.MapMouseEvent) => {
+const onPathWaypointMouseMove = (e: maplibregl.MapMouseEvent) => {
     const map = e.target as any;
     if (map._currentDraggingFeature === 'waypoint') {
         serviceLocator.eventManager.emit('waypoint.drag', e.lngLat.toArray());
@@ -94,12 +94,12 @@ const hoverPath = (pathGeojson, map: any) => {
         map.setFeatureState({ source: map._hoverPathSource, id: map._hoverPathIntegerId }, { size: 2, hover: false });
     }
 
-    map.setFeatureState({ source: pathGeojson.source, id: pathGeojson.id }, { size: 4, hover: true });
+    map.setFeatureState({ source: "transitPaths", id: pathGeojson.id }, { size: 4, hover: true });
 
     // See https://github.com/alex3165/react-mapbox-gl/issues/506
     map._hoverPathIntegerId = pathGeojson.id;
     map._hoverPathId = pathGeojson.properties.id;
-    map._hoverPathSource = pathGeojson.source;
+    map._hoverPathSource = "transitPaths";
 };
 
 // TODO Should we split this in individual functions with conditions instead?
@@ -107,7 +107,7 @@ const hoverPath = (pathGeojson, map: any) => {
 // TODO Original code in click.events.js had a _draggingEventsOrder check. Is
 // it still needed? If we have problems, there should be an event handler of
 // higher priority to check it before running any other
-const onPathSectionMapClick = async (e: MapboxGL.MapMouseEvent) => {
+const onPathSectionMapClick = async (e: maplibregl.MapMouseEvent) => {
     const features = e.target.queryRenderedFeatures([
         [e.point.x - 1, e.point.y - 1],
         [e.point.x + 1, e.point.y + 1]
@@ -252,16 +252,16 @@ const onPathSectionMapClick = async (e: MapboxGL.MapMouseEvent) => {
 };
 
 const nodeSectionEventDescriptors: MapEventHandlerDescription[] = [
-    { type: 'map', eventName: 'click', condition: isAgenciesActiveSection, handler: onPathSectionMapClick },
+    { type: 'map', eventName: 'click', condition: isAgenciesActiveSection, handler: onPathSectionMapClick as any },
     {
         type: 'layer',
         eventName: 'mousedown',
         layerName: 'transitPathWaypoints',
         condition: isAgenciesActiveSection,
-        handler: onPathWaypointMouseDown
+        handler: onPathWaypointMouseDown as any
     },
-    { type: 'map', eventName: 'mouseup', condition: isAgenciesActiveSection, handler: onPathWaypointMouseUp },
-    { type: 'map', eventName: 'mousemove', condition: isAgenciesActiveSection, handler: onPathWaypointMouseMove }
+    { type: 'map', eventName: 'mouseup', condition: isAgenciesActiveSection, handler: onPathWaypointMouseUp as any },
+    { type: 'map', eventName: 'mousemove', condition: isAgenciesActiveSection, handler: onPathWaypointMouseMove as any }
 ];
 
 export default nodeSectionEventDescriptors;

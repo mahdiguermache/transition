@@ -5,8 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 /** This file encapsulates map events that apply to the nodes layer, in any section */
-import MapboxGL from 'mapbox-gl';
-import { Popup } from 'mapbox-gl';
+import maplibregl from 'maplibre-gl';
+import { Popup } from 'maplibre-gl';
 
 import { MapEventHandlerDescription } from 'chaire-lib-frontend/lib/services/map/IMapEventHandler';
 import serviceLocator from 'chaire-lib-common/lib/utils/ServiceLocator';
@@ -39,7 +39,7 @@ const unhoverNode = (nodeId: string) => {
     }
 };
 
-const onNodeMouseEnter = (e: MapboxGL.MapLayerMouseEvent) => {
+const onNodeMouseEnter = (e: maplibregl.MapLayerMouseEvent) => {
     // TODO Adding a custom field to the map. Legal, but not clean... figure out how to do this, implementation-independent
     const map = e.target as any;
     if (e.features && e.features[0]) {
@@ -61,18 +61,18 @@ const onNodeMouseEnter = (e: MapboxGL.MapLayerMouseEvent) => {
                 { size: 1, hover: false }
             );
         }
-        e.target.setFeatureState({ source: nodeGeojson.source, id: hoverNodeIntegerId }, { size: 1.5, hover: true });
+        e.target.setFeatureState({ source: "transitNodes", id: hoverNodeIntegerId }, { size: 1.5, hover: true });
 
         // See https://github.com/alex3165/react-mapbox-gl/issues/506
         map._hoverNodeIntegerId = hoverNodeIntegerId;
         map._hoverNodeId = hoverNodeId;
-        map._hoverNodeSource = nodeGeojson.source;
+        map._hoverNodeSource = "transitNodes";
 
         hoverNode(node);
     }
 };
 
-const onNodeMouseLeave = (e: MapboxGL.MapLayerMouseEvent) => {
+const onNodeMouseLeave = (e: maplibregl.MapLayerMouseEvent) => {
     const map = e.target as any;
     e.target.getCanvas().style.cursor = '';
 
@@ -90,8 +90,8 @@ const onNodeMouseLeave = (e: MapboxGL.MapLayerMouseEvent) => {
 };
 
 const nodeLayerEventDescriptors: MapEventHandlerDescription[] = [
-    { type: 'layer', layerName: 'transitNodes', eventName: 'mouseenter', handler: onNodeMouseEnter },
-    { type: 'layer', layerName: 'transitNodes', eventName: 'mouseleave', handler: onNodeMouseLeave }
+    { type: 'layer', layerName: 'transitNodes', eventName: 'mouseenter', handler: onNodeMouseEnter as any},
+    { type: 'layer', layerName: 'transitNodes', eventName: 'mouseleave', handler: onNodeMouseLeave as any}
 ];
 
 export default nodeLayerEventDescriptors;
