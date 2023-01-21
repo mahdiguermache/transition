@@ -10,7 +10,7 @@ import maplibregl from 'maplibre-gl';
 // types, as they are already defined, when we have more implementations, we can
 // review this
 type MapEventHandler = (e: maplibregl.MapMouseEvent) => void;
-type MapLayerEventHandler = (e: maplibregl.MapLayerMouseEvent & any) => void;
+type MapLayerEventHandler = (e: maplibregl.MapLayerMouseEvent) => void;
 
 export type MapEventHandlerDescription =
     | {

@@ -189,17 +189,17 @@ const onNodeSectionContextMenu = (e: maplibregl.MapMouseEvent) => {
 };
 
 const nodeSectionEventDescriptors: MapEventHandlerDescription[] = [
-    { type: 'map', eventName: 'click', condition: isNodeActiveSection, handler: onNodeSectionMapClick as any },
+    { type: 'map', eventName: 'click', condition: isNodeActiveSection, handler: onNodeSectionMapClick },
     {
         type: 'layer',
         eventName: 'mousedown',
         layerName: 'transitNodesSelected',
         condition: isNodeActiveSection,
-        handler: onSelectedNodeMouseDown as any
+        handler: onSelectedNodeMouseDown
     },
-    { type: 'map', eventName: 'mouseup', condition: isNodeActiveSection, handler: onSelectedNodeMouseUp as any },
-    { type: 'map', eventName: 'mousemove', condition: isNodeActiveSection, handler: onSelectedNodeMouseMove as any },
-    { type: 'map', eventName: 'contextmenu', condition: isNodeActiveSection, handler: onNodeSectionContextMenu as any }
+    { type: 'map', eventName: 'mouseup', condition: isNodeActiveSection, handler: onSelectedNodeMouseUp },
+    { type: 'map', eventName: 'mousemove', condition: isNodeActiveSection, handler: onSelectedNodeMouseMove },
+    { type: 'map', eventName: 'contextmenu', condition: isNodeActiveSection, handler: onNodeSectionContextMenu }
 ];
 
 export default nodeSectionEventDescriptors;

@@ -105,13 +105,13 @@ const nodeLayerEventDescriptors: MapEventHandlerDescription[] = [
         type: 'layer',
         layerName: 'transitPathsSelected',
         eventName: 'mouseenter',
-        handler: onTransitPathSelectedMouseEnter as any
+        handler: onTransitPathSelectedMouseEnter
     },
     {
         type: 'layer',
         layerName: 'transitPathsSelected',
         eventName: 'mouseleave',
-        handler: onTransitPathSelectedMouseLeave as any
+        handler: onTransitPathSelectedMouseLeave
     },
     {
         type: 'layer',

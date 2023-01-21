@@ -49,16 +49,16 @@ const onAccessMapMouseMove = (e: maplibregl.MapMouseEvent) => {
 };
 
 const accessMapSectionEventDescriptors: MapEventHandlerDescription[] = [
-    { type: 'map', eventName: 'click', condition: isAccessMapActiveSection, handler: onAccessMapSectionMapClick as any},
+    { type: 'map', eventName: 'click', condition: isAccessMapActiveSection, handler: onAccessMapSectionMapClick },
     {
         type: 'layer',
         eventName: 'mousedown',
         layerName: 'accessibilityMapPoints',
         condition: isAccessMapActiveSection,
-        handler: onAccessMapMouseDown as any
+        handler: onAccessMapMouseDown
     },
-    { type: 'map', eventName: 'mouseup', condition: isAccessMapActiveSection, handler: onAccessMapMouseUp as any },
-    { type: 'map', eventName: 'mousemove', condition: isAccessMapActiveSection, handler: onAccessMapMouseMove as any}
+    { type: 'map', eventName: 'mouseup', condition: isAccessMapActiveSection, handler: onAccessMapMouseUp },
+    { type: 'map', eventName: 'mousemove', condition: isAccessMapActiveSection, handler: onAccessMapMouseMove }
 ];
 
 export default accessMapSectionEventDescriptors;

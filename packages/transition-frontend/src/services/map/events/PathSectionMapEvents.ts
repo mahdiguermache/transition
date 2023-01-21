@@ -252,16 +252,16 @@ const onPathSectionMapClick = async (e: maplibregl.MapMouseEvent) => {
 };
 
 const nodeSectionEventDescriptors: MapEventHandlerDescription[] = [
-    { type: 'map', eventName: 'click', condition: isAgenciesActiveSection, handler: onPathSectionMapClick as any },
+    { type: 'map', eventName: 'click', condition: isAgenciesActiveSection, handler: onPathSectionMapClick },
     {
         type: 'layer',
         eventName: 'mousedown',
         layerName: 'transitPathWaypoints',
         condition: isAgenciesActiveSection,
-        handler: onPathWaypointMouseDown as any
+        handler: onPathWaypointMouseDown
     },
-    { type: 'map', eventName: 'mouseup', condition: isAgenciesActiveSection, handler: onPathWaypointMouseUp as any },
-    { type: 'map', eventName: 'mousemove', condition: isAgenciesActiveSection, handler: onPathWaypointMouseMove as any }
+    { type: 'map', eventName: 'mouseup', condition: isAgenciesActiveSection, handler: onPathWaypointMouseUp },
+    { type: 'map', eventName: 'mousemove', condition: isAgenciesActiveSection, handler: onPathWaypointMouseMove }
 ];
 
 export default nodeSectionEventDescriptors;

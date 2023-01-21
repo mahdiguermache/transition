@@ -90,8 +90,8 @@ const onNodeMouseLeave = (e: maplibregl.MapLayerMouseEvent) => {
 };
 
 const nodeLayerEventDescriptors: MapEventHandlerDescription[] = [
-    { type: 'layer', layerName: 'transitNodes', eventName: 'mouseenter', handler: onNodeMouseEnter as any},
-    { type: 'layer', layerName: 'transitNodes', eventName: 'mouseleave', handler: onNodeMouseLeave as any}
+    { type: 'layer', layerName: 'transitNodes', eventName: 'mouseenter', handler: onNodeMouseEnter },
+    { type: 'layer', layerName: 'transitNodes', eventName: 'mouseleave', handler: onNodeMouseLeave }
 ];
 
 export default nodeLayerEventDescriptors;

@@ -20,8 +20,8 @@ const onRoutingPointMouseLeave = (e: maplibregl.MapLayerMouseEvent) => {
 };
 
 const nodeLayerEventDescriptors: MapEventHandlerDescription[] = [
-    { type: 'layer', layerName: 'routingPoints', eventName: 'mouseenter', handler: onRoutingPointMouseEnter as any },
-    { type: 'layer', layerName: 'routingPoints', eventName: 'mouseleave', handler: onRoutingPointMouseLeave as any }
+    { type: 'layer', layerName: 'routingPoints', eventName: 'mouseenter', handler: onRoutingPointMouseEnter },
+    { type: 'layer', layerName: 'routingPoints', eventName: 'mouseleave', handler: onRoutingPointMouseLeave }
 ];
 
 export default nodeLayerEventDescriptors;

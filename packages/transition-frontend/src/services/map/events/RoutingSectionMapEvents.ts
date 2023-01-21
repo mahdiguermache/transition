@@ -76,17 +76,17 @@ const onRoutingSectionContextMenu = (e: maplibregl.MapMouseEvent) => {
 };
 
 const routingSectionEventDescriptors: MapEventHandlerDescription[] = [
-    { type: 'map', eventName: 'click', condition: isRoutingActiveSection, handler: onRoutingSectionMapClick as any },
-    { type: 'map', eventName: 'contextmenu', condition: isRoutingActiveSection, handler: onRoutingSectionContextMenu as any },
+    { type: 'map', eventName: 'click', condition: isRoutingActiveSection, handler: onRoutingSectionMapClick },
+    { type: 'map', eventName: 'contextmenu', condition: isRoutingActiveSection, handler: onRoutingSectionContextMenu },
     {
         type: 'layer',
         eventName: 'mousedown',
         layerName: 'routingPoints',
         condition: isRoutingActiveSection,
-        handler: onRoutingPointMouseDown as any
+        handler: onRoutingPointMouseDown
     },
-    { type: 'map', eventName: 'mouseup', condition: isRoutingActiveSection, handler: onRoutingPointMouseUp as any },
-    { type: 'map', eventName: 'mousemove', condition: isRoutingActiveSection, handler: onRoutingPointMouseMove as any }
+    { type: 'map', eventName: 'mouseup', condition: isRoutingActiveSection, handler: onRoutingPointMouseUp },
+    { type: 'map', eventName: 'mousemove', condition: isRoutingActiveSection, handler: onRoutingPointMouseMove }
 ];
 
 export default routingSectionEventDescriptors;
