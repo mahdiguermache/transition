@@ -94,12 +94,12 @@ const hoverPath = (pathGeojson, map: any) => {
         map.setFeatureState({ source: map._hoverPathSource, id: map._hoverPathIntegerId }, { size: 2, hover: false });
     }
 
-    map.setFeatureState({ source: "transitPaths", id: pathGeojson.id }, { size: 4, hover: true });
+    map.setFeatureState({ source: 'transitPaths', id: pathGeojson.id }, { size: 4, hover: true });
 
     // See https://github.com/alex3165/react-mapbox-gl/issues/506
     map._hoverPathIntegerId = pathGeojson.id;
     map._hoverPathId = pathGeojson.properties.id;
-    map._hoverPathSource = "transitPaths";
+    map._hoverPathSource = 'transitPaths';
 };
 
 // TODO Should we split this in individual functions with conditions instead?

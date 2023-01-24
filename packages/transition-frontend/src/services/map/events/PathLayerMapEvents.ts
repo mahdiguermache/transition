@@ -65,12 +65,12 @@ export const onTransitPathsMouseEnter = (e: maplibregl.MapLayerMouseEvent) => {
             );
         }
 
-        e.target.setFeatureState({ source: "transitPaths", id: pathGeojson.id }, { size: 3, hover: true });
+        e.target.setFeatureState({ source: 'transitPaths', id: pathGeojson.id }, { size: 3, hover: true });
 
         // See https://github.com/alex3165/react-mapbox-gl/issues/506
         map._hoverPathIntegerId = pathGeojson.id;
         map._hoverPathId = pathGeojson.properties?.id;
-        map._hoverPathSource = "transitPaths";
+        map._hoverPathSource = 'transitPaths';
 
         hoverPath(
             path.getId(),

@@ -194,7 +194,7 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
             hash: true
         });
 
-        this.map.addControl(new maplibregl.ScaleControl({maxWidth: undefined}), 'bottom-right');
+        this.map.addControl(new maplibregl.ScaleControl({}), 'bottom-right');
 
         for (const eventName in this.mapEvents) {
             for (const layerName in this.mapEvents[eventName]) {
