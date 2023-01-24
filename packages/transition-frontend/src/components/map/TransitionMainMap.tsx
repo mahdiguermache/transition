@@ -187,7 +187,7 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
     componentDidMount = () => {
         this.map = new maplibregl.Map({
             container: this.mapContainer,
-            style: 'https://api.maptiler.com/maps/streets-v2/style.json?key=KCeJQzbtFLZLuRRf900z',
+            style: `https://api.maptiler.com/maps/${process.env.MAPLIBRE_STYLE_ID}/style.json?key=${process.env.MAPLIBRE_ACCESS_TOKEN}`,
             center: this.defaultCenter,
             zoom: this.defaultZoomArray[0],
             maxZoom: 20,

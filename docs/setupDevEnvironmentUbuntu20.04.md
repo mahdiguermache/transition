@@ -116,12 +116,12 @@ cp .env.example .env
 * Change `EXPRESS_SESSION_SECRET_KEY` to a random string with no space
 * Change `PROJECT_CONFIG` to point to your project's configuration file. The default is an example configuration file that can be copied and configured for your own need.
 
-### Get a Mapbox access token
-* Go to [Mapbox](http://mapxbox.com) and sign up
+### Get a Maplibre access token
+* Go to [MapTiler](https://www.maptiler.com) and sign up
 * Go to your account dashboard, then generate a new access token
 * Open the `.env` file
-* Copy this access token to `.env` file: `MAPBOX_ACCESS_TOKEN=YOUR_TOKEN`
-* If you have a custom mapbox style, put your username and style id in `MAPBOX_USER_ID` and `MAPBOX_STYLE_ID`
+* Copy this access token to `.env` file: `MAPLIBRE_ACCESS_TOKEN=YOUR_TOKEN`
+* If you have a custom maplibre style, put your username and style id in `MAPLIBRE_USER_ID` and `MAPLIBRE_STYLE_ID`
 
 
 ### Setup project

@@ -6,7 +6,7 @@
  */
 import maplibregl from 'maplibre-gl';
 
-// TODO: Make this independent of mapbox eventually. For now, we use mapbox
+// TODO: Make this independent of maplibre eventually. For now, we use maplibre
 // types, as they are already defined, when we have more implementations, we can
 // review this
 type MapEventHandler = (e: maplibregl.MapMouseEvent) => void;
