@@ -11,6 +11,9 @@ import { MapEventHandlerDescription } from 'chaire-lib-frontend/lib/services/map
 import serviceLocator from 'chaire-lib-common/lib/utils/ServiceLocator';
 import Path from 'transition-common/lib/services/path/Path';
 
+// FIXME: This used to be pathGeojson.source in mapbox, but doesn't exist in maplibre
+const geojsonSource: string = 'transitPaths'
+
 const hoverPath = (pathId: string, coordinates: [number, number], pathName: string) => {
     const popup = new Popup({
         offset: 10,
@@ -65,12 +68,12 @@ export const onTransitPathsMouseEnter = (e: maplibregl.MapLayerMouseEvent) => {
             );
         }
 
-        e.target.setFeatureState({ source: 'transitPaths', id: pathGeojson.id }, { size: 3, hover: true });
+        e.target.setFeatureState({ source: geojsonSource, id: pathGeojson.id }, { size: 3, hover: true });
 
         // See https://github.com/alex3165/react-mapbox-gl/issues/506
         map._hoverPathIntegerId = pathGeojson.id;
         map._hoverPathId = pathGeojson.properties?.id;
-        map._hoverPathSource = 'transitPaths';
+        map._hoverPathSource = geojsonSource;
 
         hoverPath(
             path.getId(),

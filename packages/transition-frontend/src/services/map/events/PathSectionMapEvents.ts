@@ -15,6 +15,9 @@ import { unhoverPath } from './PathLayerMapEvents';
 
 /* This file encapsulates map events specific for the 'nodes' section */
 
+// FIXME: This used to be pathGeojson.source in mapbox, but doesn't exist in maplibre
+const geojsonSource: string = 'transitPaths'
+
 const isAgenciesActiveSection = (activeSection: string) => activeSection === 'agencies';
 
 const onPathWaypointMouseDown = (e: maplibregl.MapLayerMouseEvent) => {
@@ -94,12 +97,12 @@ const hoverPath = (pathGeojson, map: any) => {
         map.setFeatureState({ source: map._hoverPathSource, id: map._hoverPathIntegerId }, { size: 2, hover: false });
     }
 
-    map.setFeatureState({ source: 'transitPaths', id: pathGeojson.id }, { size: 4, hover: true });
+    map.setFeatureState({ source: geojsonSource, id: pathGeojson.id }, { size: 4, hover: true });
 
     // See https://github.com/alex3165/react-mapbox-gl/issues/506
     map._hoverPathIntegerId = pathGeojson.id;
     map._hoverPathId = pathGeojson.properties.id;
-    map._hoverPathSource = 'transitPaths';
+    map._hoverPathSource = geojsonSource;
 };
 
 // TODO Should we split this in individual functions with conditions instead?
