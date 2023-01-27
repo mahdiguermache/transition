@@ -4,7 +4,6 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import maplibregl from 'maplibre-gl';
 import { featureCollection as turfFeatureCollection } from '@turf/turf';
 import _uniq from 'lodash.uniq';
 

@@ -5,7 +5,6 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 /** This file encapsulates map events that apply to the nodes layer, in any section */
-import maplibregl from 'maplibre-gl';
 import { Popup } from 'maplibre-gl';
 
 import { MapEventHandlerDescription } from 'chaire-lib-frontend/lib/services/map/IMapEventHandler';

@@ -4,7 +4,6 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import maplibregl from 'maplibre-gl';
 import _debounce from 'lodash.debounce';
 
 import serviceLocator from 'chaire-lib-common/lib/utils/ServiceLocator';
