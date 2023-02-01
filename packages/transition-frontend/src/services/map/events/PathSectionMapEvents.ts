@@ -16,7 +16,7 @@ import { unhoverPath } from './PathLayerMapEvents';
 /* This file encapsulates map events specific for the 'nodes' section */
 
 // FIXME: This used to be pathGeojson.source in mapbox, but doesn't exist in maplibre
-const geojsonSource: string = 'transitPaths'
+const geojsonSource = 'transitPaths';
 
 const isAgenciesActiveSection = (activeSection: string) => activeSection === 'agencies';
 

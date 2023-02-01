@@ -12,7 +12,7 @@ import serviceLocator from 'chaire-lib-common/lib/utils/ServiceLocator';
 import Node from 'transition-common/lib/services/nodes/Node';
 
 // FIXME: This used to be nodeGeojson.source in mapbox, but doesn't exist in maplibre
-const geojsonSource: string = 'transitNodes'
+const geojsonSource = 'transitNodes';
 
 const hoverNode = (node: Node, nodeTitle = node.toString(false)) => {
     const popup = new Popup({

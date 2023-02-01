@@ -12,7 +12,7 @@ import serviceLocator from 'chaire-lib-common/lib/utils/ServiceLocator';
 import Path from 'transition-common/lib/services/path/Path';
 
 // FIXME: This used to be pathGeojson.source in mapbox, but doesn't exist in maplibre
-const geojsonSource: string = 'transitPaths'
+const geojsonSource = 'transitPaths';
 
 const hoverPath = (pathId: string, coordinates: [number, number], pathName: string) => {
     const popup = new Popup({
