@@ -130,15 +130,18 @@ class highlightLayer {
         // gl.STATIC_DRAW
         // );
 
-    gl.useProgram(this.program);
-    gl.uniformMatrix4fv(
-    gl.getUniformLocation(this.program, 'u_matrix'), false, matrix);
-    // gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-    gl.enableVertexAttribArray(this.aPos);
-    gl.vertexAttribPointer(this.aPos, 2, gl.FLOAT, false, 0, 0);
-    gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 3);
+        gl.useProgram(this.program);
+        gl.uniformMatrix4fv(
+        gl.getUniformLocation(this.program, 'u_matrix'),
+        false,
+        matrix
+        );
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+        gl.enableVertexAttribArray(this.aPos);
+        gl.vertexAttribPointer(this.aPos, 2, gl.FLOAT, false, 0, 0);
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 3);
     };
 };
 
@@ -906,8 +909,8 @@ const layersConfig = {
     },
 
     transitNodesSelected: {
-        type: 'custom',
-        // 'custom-shader': 'circleSpinner',
+        type: 'circle',
+        'custom-shader': 'circleSpinner',
         repaint: true,
         paint: {
             'circle-radius': ['interpolate', ['exponential', 2], ['zoom'], 0, 0, 10, 2, 15, 12, 20, 23],
@@ -919,28 +922,28 @@ const layersConfig = {
             'circle-stroke-width': ['interpolate', ['exponential', 2], ['zoom'], 0, 0, 10, 0.5, 15, 5, 20, 8],
             'circle-stroke-opacity': 1.0,
             'circle-stroke-color': 'rgba(255,255,255,1.0)'
-        },
-    
-        onAdd: (map: Map, gl: WebGLRenderingContext) => {
-            
-        },
-    
-        render: (gl: WebGLRenderingContext, matrix) => {
-            // console.log(serviceLocator.layerManager._layersByName['transitNodes'].source.data.feature[i].geometry.coordinates)
-
-            // circleMap.painter.tile.getBucket({id: 'highlight'})
-
-            // gl.useProgram(program);
-            // gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_matrix'), false, matrix);
-            // gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-            // gl.enableVertexAttribArray(program.aPos);
-            // gl.vertexAttribPointer(program.aPos, 2, gl.FLOAT, false, 0, 0);
-            // gl.uniform2fv(gl.getUniformLocation(program, 'u_extrude_scale'), circleMap.transform.pixelsToGLUnits);
-            // gl.uniform1f(gl.getUniformLocation(program, 'u_device_pixel_ratio'), window.devicePixelRatio)
-            // gl.uniform1f(gl.getUniformLocation(program, 'u_camera_to_center_distance'), circleMap.transform.cameraToCenterDistance)
-            // gl.drawArrays(gl.POINTS, 0, 100);
-            // circleMap.triggerRepaint();
         }
+    
+        // onAdd: (map: Map, gl: WebGLRenderingContext) => {
+            
+        // },
+    
+        // render: (gl: WebGLRenderingContext, matrix) => {
+        //     // console.log(serviceLocator.layerManager._layersByName['transitNodes'].source.data.feature[i].geometry.coordinates)
+
+        //     // circleMap.painter.tile.getBucket({id: 'highlight'})
+
+        //     // gl.useProgram(program);
+        //     // gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_matrix'), false, matrix);
+        //     // gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        //     // gl.enableVertexAttribArray(program.aPos);
+        //     // gl.vertexAttribPointer(program.aPos, 2, gl.FLOAT, false, 0, 0);
+        //     // gl.uniform2fv(gl.getUniformLocation(program, 'u_extrude_scale'), circleMap.transform.pixelsToGLUnits);
+        //     // gl.uniform1f(gl.getUniformLocation(program, 'u_device_pixel_ratio'), window.devicePixelRatio)
+        //     // gl.uniform1f(gl.getUniformLocation(program, 'u_camera_to_center_distance'), circleMap.transform.cameraToCenterDistance)
+        //     // gl.drawArrays(gl.POINTS, 0, 100);
+        //     // circleMap.triggerRepaint();
+        // }
     },
 
     transitNodesSelectedErrors: {
