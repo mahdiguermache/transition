@@ -10,7 +10,7 @@
  * TODO: Other parts of the app should not be "map-aware", there should be more
  * generic events to which the map can register
  */
-import { Popup } from 'mapbox-gl';
+import { Popup } from 'maplibre-gl';
 
 import serviceLocator from 'chaire-lib-common/lib/utils/ServiceLocator';
 import { EventEmitter } from 'events';

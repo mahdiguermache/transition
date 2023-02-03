@@ -5,12 +5,15 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 /** This file encapsulates map events that apply to the nodes layer, in any section */
-import MapboxGL from 'mapbox-gl';
-import { Popup } from 'mapbox-gl';
+import maplibregl from 'maplibre-gl';
+import { Popup } from 'maplibre-gl';
 
 import { MapEventHandlerDescription } from 'chaire-lib-frontend/lib/services/map/IMapEventHandler';
 import serviceLocator from 'chaire-lib-common/lib/utils/ServiceLocator';
 import Node from 'transition-common/lib/services/nodes/Node';
+
+// FIXME: This used to be nodeGeojson.source in mapbox, but doesn't exist in maplibre
+const geojsonSource: string = 'transitNodes'
 
 const hoverNode = (node: Node, nodeTitle = node.toString(false)) => {
     const popup = new Popup({
@@ -39,7 +42,7 @@ const unhoverNode = (nodeId: string) => {
     }
 };
 
-const onNodeMouseEnter = (e: MapboxGL.MapLayerMouseEvent) => {
+const onNodeMouseEnter = (e: maplibregl.MapLayerMouseEvent) => {
     // TODO Adding a custom field to the map. Legal, but not clean... figure out how to do this, implementation-independent
     const map = e.target as any;
     if (e.features && e.features[0]) {
@@ -61,18 +64,18 @@ const onNodeMouseEnter = (e: MapboxGL.MapLayerMouseEvent) => {
                 { size: 1, hover: false }
             );
         }
-        e.target.setFeatureState({ source: nodeGeojson.source, id: hoverNodeIntegerId }, { size: 1.5, hover: true });
+        e.target.setFeatureState({ source: geojsonSource, id: hoverNodeIntegerId }, { size: 1.5, hover: true });
 
         // See https://github.com/alex3165/react-mapbox-gl/issues/506
         map._hoverNodeIntegerId = hoverNodeIntegerId;
         map._hoverNodeId = hoverNodeId;
-        map._hoverNodeSource = nodeGeojson.source;
+        map._hoverNodeSource = geojsonSource;
 
         hoverNode(node);
     }
 };
 
-const onNodeMouseLeave = (e: MapboxGL.MapLayerMouseEvent) => {
+const onNodeMouseLeave = (e: maplibregl.MapLayerMouseEvent) => {
     const map = e.target as any;
     e.target.getCanvas().style.cursor = '';
 

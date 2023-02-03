@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import MapboxGL from 'mapbox-gl';
+import maplibregl from 'maplibre-gl';
 import _uniq from 'lodash.uniq';
 
 import { MapEventHandlerDescription } from 'chaire-lib-frontend/lib/services/map/IMapEventHandler';
@@ -14,12 +14,12 @@ import serviceLocator from 'chaire-lib-common/lib/utils/ServiceLocator';
 
 const isAccessMapActiveSection = (activeSection: string) => activeSection === 'accessibilityMap';
 
-const onAccessMapSectionMapClick = (e: MapboxGL.MapMouseEvent) => {
+const onAccessMapSectionMapClick = (e: maplibregl.MapMouseEvent) => {
     serviceLocator.eventManager.emit('routing.transitAccessibilityMap.clickedOnMap', e.lngLat.toArray());
     e.originalEvent.stopPropagation();
 };
 
-const onAccessMapMouseDown = (e: MapboxGL.MapLayerMouseEvent) => {
+const onAccessMapMouseDown = (e: maplibregl.MapLayerMouseEvent) => {
     if (!e.features || e.features.length === 0) {
         return;
     }
@@ -30,7 +30,7 @@ const onAccessMapMouseDown = (e: MapboxGL.MapLayerMouseEvent) => {
     e.originalEvent.stopPropagation();
 };
 
-const onAccessMapMouseUp = (e: MapboxGL.MapMouseEvent) => {
+const onAccessMapMouseUp = (e: maplibregl.MapMouseEvent) => {
     const map = e.target as any;
     if (map._currentDraggingFeature === 'accessibilityMapLocation') {
         serviceLocator.eventManager.emit('routing.transitAccessibilityMap.dragLocation', e.lngLat.toArray());
@@ -40,7 +40,7 @@ const onAccessMapMouseUp = (e: MapboxGL.MapMouseEvent) => {
     }
 };
 
-const onAccessMapMouseMove = (e: MapboxGL.MapMouseEvent) => {
+const onAccessMapMouseMove = (e: maplibregl.MapMouseEvent) => {
     const map = e.target as any;
     if (map._currentDraggingFeature === 'accessibilityMapLocation') {
         serviceLocator.eventManager.emit('routing.transitAccessibilityMap.dragLocation', e.lngLat.toArray());

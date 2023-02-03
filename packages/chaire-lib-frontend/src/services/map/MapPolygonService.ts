@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
-import { Map } from 'mapbox-gl';
+import { Map } from 'maplibre-gl';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import GeoJson from 'geojson';
 

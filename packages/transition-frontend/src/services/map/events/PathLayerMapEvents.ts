@@ -5,11 +5,14 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 /** This file encapsulates map events that apply to the path* layer, in any section */
-import MapboxGL, { Popup } from 'mapbox-gl';
+import maplibregl, { Popup } from 'maplibre-gl';
 
 import { MapEventHandlerDescription } from 'chaire-lib-frontend/lib/services/map/IMapEventHandler';
 import serviceLocator from 'chaire-lib-common/lib/utils/ServiceLocator';
 import Path from 'transition-common/lib/services/path/Path';
+
+// FIXME: This used to be pathGeojson.source in mapbox, but doesn't exist in maplibre
+const geojsonSource: string = 'transitPaths'
 
 const hoverPath = (pathId: string, coordinates: [number, number], pathName: string) => {
     const popup = new Popup({
@@ -25,27 +28,27 @@ export const unhoverPath = (pathId: string) => {
     serviceLocator.eventManager.emit('map.removePopup', pathId);
 };
 
-const onTransitPathSelectedMouseEnter = (e: MapboxGL.MapLayerMouseEvent) => {
+const onTransitPathSelectedMouseEnter = (e: maplibregl.MapLayerMouseEvent) => {
     if (e.features && e.features[0]) {
         e.target.getCanvas().style.cursor = 'pointer';
     }
 };
 
-const onTransitPathSelectedMouseLeave = (e: MapboxGL.MapLayerMouseEvent) => {
+const onTransitPathSelectedMouseLeave = (e: maplibregl.MapLayerMouseEvent) => {
     e.target.getCanvas().style.cursor = '';
 };
 
-const onTransitPathWaypointMouseEnter = (e: MapboxGL.MapLayerMouseEvent) => {
+const onTransitPathWaypointMouseEnter = (e: maplibregl.MapLayerMouseEvent) => {
     if (e.features && e.features[0]) {
         e.target.getCanvas().style.cursor = 'pointer';
     }
 };
 
-const onTransitPathWaypointMouseLeave = (e: MapboxGL.MapLayerMouseEvent) => {
+const onTransitPathWaypointMouseLeave = (e: maplibregl.MapLayerMouseEvent) => {
     e.target.getCanvas().style.cursor = '';
 };
 
-export const onTransitPathsMouseEnter = (e: MapboxGL.MapLayerMouseEvent) => {
+export const onTransitPathsMouseEnter = (e: maplibregl.MapLayerMouseEvent) => {
     if (e.target.getZoom() >= 12 && e.features && e.features[0]) {
         const map = e.target as any;
         e.target.getCanvas().style.cursor = 'pointer';
@@ -65,12 +68,12 @@ export const onTransitPathsMouseEnter = (e: MapboxGL.MapLayerMouseEvent) => {
             );
         }
 
-        e.target.setFeatureState({ source: pathGeojson.source, id: pathGeojson.id }, { size: 3, hover: true });
+        e.target.setFeatureState({ source: geojsonSource, id: pathGeojson.id }, { size: 3, hover: true });
 
         // See https://github.com/alex3165/react-mapbox-gl/issues/506
         map._hoverPathIntegerId = pathGeojson.id;
         map._hoverPathId = pathGeojson.properties?.id;
-        map._hoverPathSource = pathGeojson.source;
+        map._hoverPathSource = geojsonSource;
 
         hoverPath(
             path.getId(),
@@ -82,7 +85,7 @@ export const onTransitPathsMouseEnter = (e: MapboxGL.MapLayerMouseEvent) => {
     }
 };
 
-export const onTransitPathsMouseLeave = (e: MapboxGL.MapLayerMouseEvent) => {
+export const onTransitPathsMouseLeave = (e: maplibregl.MapLayerMouseEvent) => {
     e.target.getCanvas().style.cursor = '';
 
     const map = e.target as any;

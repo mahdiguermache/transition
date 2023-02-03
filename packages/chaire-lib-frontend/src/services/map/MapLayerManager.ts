@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import MapboxGL from 'mapbox-gl';
+import maplibregl from 'maplibre-gl';
 import { featureCollection as turfFeatureCollection } from '@turf/turf';
 import _uniq from 'lodash.uniq';
 
@@ -13,14 +13,14 @@ import serviceLocator from 'chaire-lib-common/lib/utils/ServiceLocator';
 const defaultGeojson = turfFeatureCollection([]);
 
 /**
- * Layer manager for Mapbox-gl maps
+ * Layer manager for maplibre-gl maps
  *
  * TODO See how filters are used and type them properly, make them map implementation independant ideally
  *
  * TODO: If we want to support multiple map implementation, this layer management will have to be updated
  */
-class MapboxLayerManager {
-    private _map: MapboxGL.Map | undefined;
+class MaplibreLayerManager {
+    private _map: maplibregl.Map | undefined;
     private _layersByName: { [key: string]: any } = {};
     private _enabledLayers: string[] = [];
     private _defaultFilterByLayer = {};
@@ -59,7 +59,7 @@ class MapboxLayerManager {
     }
 
     // TODO Consider deprecating and adding the map on the constructor only
-    setMap(map: MapboxGL.Map) {
+    setMap(map: maplibregl.Map) {
         this._map = map;
     }
 
@@ -99,7 +99,7 @@ class MapboxLayerManager {
         enabledLayers = _uniq(enabledLayers); // make sure we do not have the same layer twice (can happen with user prefs not replaced correctly after updates)
         const previousEnabledLayers: string[] = this._enabledLayers || [];
         previousEnabledLayers.forEach((previousEnabledLayer) => {
-            this._map?.removeLayer(previousEnabledLayer); // we need to remove all layers so we can keep the right z-index: TODO: make this more efficient by recalculating z-index in mapbox order instead of reloading everything.
+            this._map?.removeLayer(previousEnabledLayer); // we need to remove all layers so we can keep the right z-index: TODO: make this more efficient by recalculating z-index in maplibre order instead of reloading everything.
             if (!enabledLayers.includes(previousEnabledLayer)) {
                 this._map?.removeSource(previousEnabledLayer);
             }
@@ -171,11 +171,11 @@ class MapboxLayerManager {
     }
 
     getLayer(layerName: string) {
-        return this._map?.getLayer(layerName);
+        return this._map?.getLayer(layerName) as any;
     }
 
     getNextLayerName(layerName: string) {
-        // to be able to add a layer before another (see mapbox map.addLayer attribute beforeId)
+        // to be able to add a layer before another (see maplibre map.addLayer attribute beforeId)
         const enabledLayers = this._enabledLayers || [];
         const enabledLayersCount = enabledLayers.length;
         for (let i = 0; i < enabledLayersCount - 1; i++) {
@@ -215,7 +215,7 @@ class MapboxLayerManager {
         this._layersByName[layerName].source.data = newGeojson;
 
         if (this._map && this.layerIsEnabled(layerName)) {
-            (this._map.getSource(layerName) as MapboxGL.GeoJSONSource).setData(
+            (this._map.getSource(layerName) as maplibregl.GeoJSONSource).setData(
                 this._layersByName[layerName].source.data
             );
             if (this._layersByName[layerName].layer.repaint === true) {
@@ -237,7 +237,7 @@ class MapboxLayerManager {
                         : defaultGeojson;
             this._layersByName[layerName].source.data = newGeojson;
             if (this._map && this.layerIsEnabled(layerName)) {
-                (this._map.getSource(layerName) as MapboxGL.GeoJSONSource).setData(
+                (this._map.getSource(layerName) as maplibregl.GeoJSONSource).setData(
                     this._layersByName[layerName].source.data
                 );
                 if (this._layersByName[layerName].layer.repaint === true) {
@@ -274,4 +274,4 @@ class MapboxLayerManager {
     }
 }
 
-export default MapboxLayerManager;
+export default MaplibreLayerManager;

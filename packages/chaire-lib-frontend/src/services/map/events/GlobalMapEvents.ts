@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import MapboxGL from 'mapbox-gl';
+import maplibregl from 'maplibre-gl';
 import _debounce from 'lodash.debounce';
 
 import serviceLocator from 'chaire-lib-common/lib/utils/ServiceLocator';
@@ -13,19 +13,19 @@ import { MapEventHandlerDescription } from '../IMapEventHandler';
 
 /* This file encapsulates global map events, that do not require a specific context */
 
-const onMouseOut = (_e: MapboxGL.MapMouseEvent) => {
+const onMouseOut = (_e: maplibregl.MapMouseEvent) => {
     serviceLocator.eventManager.emit('map.updateMouseCoordinates', null);
 };
 
-const onZoomEnd = (_e: MapboxGL.MapMouseEvent) => {
-    _debounce((e: MapboxGL.MapMouseEvent) => {
+const onZoomEnd = (_e: maplibregl.MapMouseEvent) => {
+    _debounce((e: maplibregl.MapMouseEvent) => {
         Preferences.update(serviceLocator.socketEventManager, serviceLocator.eventManager, {
             'map.zoom': e.target.getZoom()
         });
     }, 1000);
 };
 
-const onDragEnd = (e: MapboxGL.MapMouseEvent) => {
+const onDragEnd = (e: maplibregl.MapMouseEvent) => {
     const map = e.target as any;
     // TODO _draggingEventsOrder is a custom addition to the map, not typed or anything. Find a better way to do this
     if (map._draggingEventsOrder && map._draggingEventsOrder.length > 0) {
@@ -44,12 +44,12 @@ const onDragEnd = (e: MapboxGL.MapMouseEvent) => {
     }, 1000)();
 };
 
-const onDragStart = (e: MapboxGL.MapMouseEvent) => {
+const onDragStart = (e: maplibregl.MapMouseEvent) => {
     const map = e.target as any;
     map._draggingEventsOrder = ['dragstart'];
 };
 
-const onMouseMove = (e: MapboxGL.MapMouseEvent) => {
+const onMouseMove = (e: maplibregl.MapMouseEvent) => {
     serviceLocator.eventManager.emit('map.updateMouseCoordinates', e.lngLat.toArray());
 };
 
