@@ -91,6 +91,31 @@ gl.STATIC_DRAW
     // method fired on each animation frame
     // https://maplibre.org/maplibre-gl-js-docs/api/map/#map.event:render
     public render = (gl, matrix) => {
+        var nodes: number[] = [];
+        const layerData = serviceLocator.layerManager._layersByName['transitNodes'].source.data
+        console.log(layerData)
+
+        if(!layerData.features) return;
+
+        layerData.features.forEach((element) => {
+            const coords = maplibregl.MercatorCoordinate.fromLngLat({
+                lng: element.geometry.coordinates[0],
+                lat: element.geometry.coordinates[1]
+                });
+
+            nodes.push(coords.x);
+            nodes.push(coords.y);
+        })
+
+        console.log(nodes)
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+        gl.bufferData(
+            gl.ARRAY_BUFFER,
+            new Float32Array(nodes),
+            gl.STATIC_DRAW
+        );
+
         gl.useProgram(this.program);
         gl.uniformMatrix4fv(
         gl.getUniformLocation(this.program, 'u_matrix'),
@@ -102,7 +127,8 @@ gl.STATIC_DRAW
         gl.vertexAttribPointer(this.aPos, 2, gl.FLOAT, false, 0, 0);
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 3);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, layerData.features.length);
+        // this.map.triggerRepaint();
     };
 };
 
