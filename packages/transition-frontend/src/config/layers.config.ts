@@ -10,10 +10,6 @@ import shaders from './shaders.js'
 import serviceLocator from 'chaire-lib-common/lib/utils/ServiceLocator';
 
 
-var program;
-var circleMap: Map;
-var buffer: any;
-
 class highlightLayer {
     public id = 'highlight';
     public type = 'custom';
@@ -27,109 +23,74 @@ class highlightLayer {
     // https://maplibre.org/maplibre-gl-js-docs/api/properties/#styleimageinterface#onadd
     public onAdd = (map, gl) => {
     // create GLSL source for vertex shader
-    var vertexSource =
-    '' +
-    'uniform mat4 u_matrix;' +
-    'attribute vec2 a_pos;' +
-    'void main() {' +
-    '    gl_Position = u_matrix * vec4(a_pos, 0.0, 1.0);' +
-    '}';
-     
-    // create GLSL source for fragment shader
-    var fragmentSource =
-    '' +
-    'void main() {' +
-    '    gl_FragColor = vec4(1.0, 0.0, 0.0, 0.5);' +
-    '}';
-     
-    // create a vertex shader
-    var vertexShader = gl.createShader(gl.VERTEX_SHADER);
-    gl.shaderSource(vertexShader, vertexSource);
-    gl.compileShader(vertexShader);
-    if( !gl.getProgramParameter(program,gl.LINK_STATUS) ) {
-        console.log("Error linking shaders");
-    }
-     
-    // create a fragment shader
-    var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-    gl.shaderSource(fragmentShader, fragmentSource);
-    gl.compileShader(fragmentShader);
-    if( !gl.getProgramParameter(program,gl.LINK_STATUS) ) {
-        console.log("Error linking shaders");
-    }
-     
-    // link the two shaders into a WebGL program
-    this.program = gl.createProgram();
-    gl.attachShader(this.program, vertexShader);
-    gl.attachShader(this.program, fragmentShader);
-    gl.linkProgram(this.program);
-    if( !gl.getProgramParameter(program,gl.LINK_STATUS) ) {
-        console.log("Error linking shaders");
-    }
-     
-    this.aPos = gl.getAttribLocation(this.program, 'a_pos');
-     
-    // define vertices of the triangle to be rendered in the custom style layer
-    var helsinki = maplibregl.MercatorCoordinate.fromLngLat({
-    lng: 25.004,
-    lat: 60.239
-    });
-    var berlin = maplibregl.MercatorCoordinate.fromLngLat({
-    lng: 13.403,
-    lat: 52.562
-    });
-    var kyiv = maplibregl.MercatorCoordinate.fromLngLat({
-    lng: 30.498,
-    lat: 50.541
-    });
-     
-    // create and initialize a WebGLBuffer to store vertex and color data
-    this.buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-    gl.bufferData(
-    gl.ARRAY_BUFFER,
-    new Float32Array([
-    helsinki.x,
-    helsinki.y,
-    berlin.x,
-    berlin.y,
-    kyiv.x,
-    kyiv.y
-    ]),
-    gl.STATIC_DRAW
-    );
+var vertexSource =
+'' +
+'uniform mat4 u_matrix;' +
+'attribute vec2 a_pos;' +
+'void main() {' +
+'    gl_Position = u_matrix * vec4(a_pos, 0.0, 1.0);' +
+'}';
+ 
+// create GLSL source for fragment shader
+var fragmentSource =
+'' +
+'void main() {' +
+'    gl_FragColor = vec4(1.0, 0.0, 0.0, 0.5);' +
+'}';
+ 
+// create a vertex shader
+var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+gl.shaderSource(vertexShader, vertexSource);
+gl.compileShader(vertexShader);
+ 
+// create a fragment shader
+var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+gl.shaderSource(fragmentShader, fragmentSource);
+gl.compileShader(fragmentShader);
+ 
+// link the two shaders into a WebGL program
+this.program = gl.createProgram();
+gl.attachShader(this.program, vertexShader);
+gl.attachShader(this.program, fragmentShader);
+gl.linkProgram(this.program);
+ 
+this.aPos = gl.getAttribLocation(this.program, 'a_pos');
+ 
+// define vertices of the triangle to be rendered in the custom style layer
+var helsinki = maplibregl.MercatorCoordinate.fromLngLat({
+lng: 25.004,
+lat: 60.239
+});
+var berlin = maplibregl.MercatorCoordinate.fromLngLat({
+lng: 13.403,
+lat: 52.562
+});
+var kyiv = maplibregl.MercatorCoordinate.fromLngLat({
+lng: 30.498,
+lat: 50.541
+});
+ 
+// create and initialize a WebGLBuffer to store vertex and color data
+this.buffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+gl.bufferData(
+gl.ARRAY_BUFFER,
+new Float32Array([
+helsinki.x,
+helsinki.y,
+berlin.x,
+berlin.y,
+kyiv.x,
+kyiv.y
+]),
+gl.STATIC_DRAW
+);
 
     };
-
      
     // method fired on each animation frame
     // https://maplibre.org/maplibre-gl-js-docs/api/map/#map.event:render
-    public render =(gl, matrix) => {
-        // console.log(serviceLocator.layerManager._layersByName['transitNodes'].source.data.feature[0].geometry.coordinates)
-
-        // var nodes: number[] = [];
-
-        // const layerData = serviceLocator.layerManager._layersByName['transitNodes'].source.data;
-
-        // if(!layerData.feature) return;
-        // layerData.feature.forEach((element) => {
-        //     const coords = maplibregl.MercatorCoordinate.fromLngLat({
-        //         lng: element.geometry.coordinates[0],
-        //         lat: element.geometry.coordinates[1]
-        //     });
-
-        //     nodes.push(coords.x);
-        //     nodes.push(coords.y);
-        // });
-
-        // this.buffer = gl.createBuffer();
-        // gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-        // gl.bufferData(
-        // gl.ARRAY_BUFFER,
-        // new Float32Array(nodes),
-        // gl.STATIC_DRAW
-        // );
-
+    public render = (gl, matrix) => {
         gl.useProgram(this.program);
         gl.uniformMatrix4fv(
         gl.getUniformLocation(this.program, 'u_matrix'),
@@ -923,27 +884,6 @@ const layersConfig = {
             'circle-stroke-opacity': 1.0,
             'circle-stroke-color': 'rgba(255,255,255,1.0)'
         }
-    
-        // onAdd: (map: Map, gl: WebGLRenderingContext) => {
-            
-        // },
-    
-        // render: (gl: WebGLRenderingContext, matrix) => {
-        //     // console.log(serviceLocator.layerManager._layersByName['transitNodes'].source.data.feature[i].geometry.coordinates)
-
-        //     // circleMap.painter.tile.getBucket({id: 'highlight'})
-
-        //     // gl.useProgram(program);
-        //     // gl.uniformMatrix4fv(gl.getUniformLocation(program, 'u_matrix'), false, matrix);
-        //     // gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-        //     // gl.enableVertexAttribArray(program.aPos);
-        //     // gl.vertexAttribPointer(program.aPos, 2, gl.FLOAT, false, 0, 0);
-        //     // gl.uniform2fv(gl.getUniformLocation(program, 'u_extrude_scale'), circleMap.transform.pixelsToGLUnits);
-        //     // gl.uniform1f(gl.getUniformLocation(program, 'u_device_pixel_ratio'), window.devicePixelRatio)
-        //     // gl.uniform1f(gl.getUniformLocation(program, 'u_camera_to_center_distance'), circleMap.transform.cameraToCenterDistance)
-        //     // gl.drawArrays(gl.POINTS, 0, 100);
-        //     // circleMap.triggerRepaint();
-        // }
     },
 
     transitNodesSelectedErrors: {
