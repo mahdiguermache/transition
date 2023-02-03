@@ -110,7 +110,8 @@ const defaultPreferences: PreferencesModel = {
                 'transitNodes',
                 'transitNodesSelected',
                 'transitNodesSelectedErrors',
-                'transitPathWaypointsErrors'
+                'transitPathWaypointsErrors',
+                'testLayer'
             ],
             nodes: [
                 'aggregatedOD',
@@ -124,7 +125,8 @@ const defaultPreferences: PreferencesModel = {
                 'transitStations',
                 'transitStationsSelected',
                 'transitNodes',
-                'transitNodesSelected'
+                'transitNodesSelected',
+                'testLayer'
             ],
             scenarios: ['transitPathsForServices'],
             routing: [
@@ -150,7 +152,8 @@ const defaultPreferences: PreferencesModel = {
                 'transitPathWaypoints',
                 'transitPathWaypointsSelected',
                 'transitNodes',
-                'transitNodesSelected'
+                'transitNodesSelected',
+                'testLayer'
             ],
             gtfsExport: [
                 'aggregatedOD',
@@ -162,7 +165,8 @@ const defaultPreferences: PreferencesModel = {
                 'transitPathWaypoints',
                 'transitPathWaypointsSelected',
                 'transitNodes',
-                'transitNodesSelected'
+                'transitNodesSelected',
+                'testLayer'
             ]
         }
     },
