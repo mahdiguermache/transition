@@ -29,6 +29,7 @@ import { LayoutSectionProps } from 'chaire-lib-frontend/lib/services/dashboard/D
 import { MapEventHandlerDescription } from 'chaire-lib-frontend/lib/services/map/IMapEventHandler';
 import maplibregl from 'maplibre-gl';
 import { LngLatBoundsLike } from 'maplibre-gl';
+import * as turf from '@turf/turf';
 
 export interface MainMapProps extends LayoutSectionProps {
     zoom: number;
@@ -465,6 +466,23 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
     updateLayer = (layerName: string, geojson: GeoJSON.FeatureCollection) => {
         //console.log('updating map layer', layerName, geojson);
         this.layerManager.updateLayer(layerName, geojson);
+        const layerData = serviceLocator.layerManager._layersByName['transitPaths'].source.data;
+        console.log("Layer data ici test :" + JSON.stringify(layerData.features));
+        let indice:number = 1;
+        layerData.features.forEach((element)=>{
+            console.log("Feature numero : " + indice +" " + JSON.stringify(element.geometry.coordinates) +"/n");
+            indice ++;
+        });
+        /*for(let i = 0; i < layerData.features.length -2 ; i++){
+            for(let j = i; j < layerData.features.length -1 ; j++){
+                console.log("Comparaison entre la ligne " + i  + " " + j + " " + turf.lineOverlap(turf.lineString(layerData.features[i].geometry.coordinates),turf.lineString(layerData.features[j].geometry.coordinates)));
+            }
+        }*/
+        for(let i = 0; i < layerData.features.length -2 ; i++){
+            for(let j = i; j < layerData.features.length -1 ; j++){
+                console.log("Comparaison entre la ligne " + i  + " " + j + " " + JSON.stringify(turf.lineOverlap( turf.lineString(layerData.features[i].geometry.coordinates), turf.lineString(layerData.features[j].geometry.coordinates ) ) ) );
+            }
+        }
     };
 
     updateLayers = (geojsonByLayerName) => {
