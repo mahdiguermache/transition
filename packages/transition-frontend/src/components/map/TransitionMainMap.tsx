@@ -30,6 +30,8 @@ import { MapEventHandlerDescription } from 'chaire-lib-frontend/lib/services/map
 import maplibregl from 'maplibre-gl';
 import { LngLatBoundsLike } from 'maplibre-gl';
 import * as turf from '@turf/turf';
+import GeoJSON from 'geojson';
+
 
 export interface MainMapProps extends LayoutSectionProps {
     zoom: number;
@@ -43,6 +45,12 @@ export interface MainMapProps extends LayoutSectionProps {
 interface MainMapState {
     layers: string[];
     confirmModalDeleteIsOpen: boolean;
+}
+
+interface OverlappingSegments {
+    geoData: string;
+    crossingLines: number[];
+    directions: boolean[];
 }
 
 /**
@@ -467,22 +475,49 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
         //console.log('updating map layer', layerName, geojson);
         this.layerManager.updateLayer(layerName, geojson);
         const layerData = serviceLocator.layerManager._layersByName['transitPaths'].source.data;
-        console.log("Layer data ici test :" + JSON.stringify(layerData.features));
-        let indice:number = 1;
-        layerData.features.forEach((element)=>{
-            console.log("Feature numero : " + indice +" " + JSON.stringify(element.geometry.coordinates) +"/n");
-            indice ++;
-        });
-        /*for(let i = 0; i < layerData.features.length -2 ; i++){
-            for(let j = i; j < layerData.features.length -1 ; j++){
-                console.log("Comparaison entre la ligne " + i  + " " + j + " " + turf.lineOverlap(turf.lineString(layerData.features[i].geometry.coordinates),turf.lineString(layerData.features[j].geometry.coordinates)));
-            }
-        }*/
-        for(let i = 0; i < layerData.features.length -2 ; i++){
-            for(let j = i; j < layerData.features.length -1 ; j++){
-                console.log("Comparaison entre la ligne " + i  + " " + j + " " + JSON.stringify(turf.lineOverlap( turf.lineString(layerData.features[i].geometry.coordinates), turf.lineString(layerData.features[j].geometry.coordinates ) ) ) );
+        //console.log("Layer data ici test :" + JSON.stringify(layerData.features));
+        // let indice:number = 1;
+        // layerData.features.forEach((element)=>{
+        //     console.log("Feature numero : " + indice +" " + JSON.stringify(element.geometry.coordinates) +"/n");
+        //     indice ++;
+        // });
+        const features = layerData.features;
+        //console.log(JSON.stringify(features));
+
+        const overlapMap: Map<string, Set<number>> = new Map();
+        for(let i = 0; i < features.length -2 ; i++){
+            for(let j = i + 1; j < features.length -1 ; j++){
+                const overlap = turf.lineOverlap( turf.lineString(features[i].geometry.coordinates), turf.lineString(features[j].geometry.coordinates ) );
+                if (overlap.features.length == 0)
+                    continue;
+
+                const overlapStr = JSON.stringify(overlap);
+                if (!overlapMap.has(overlapStr))
+                    overlapMap.set(overlapStr, new Set())
+
+                overlapMap.get(overlapStr)?.add(features[i].id).add(features[j].id);
+                
             }
         }
+
+        
+
+        //console.log(overlapMap.size);
+
+        const overlapArray: OverlappingSegments[] = [];
+
+        let counter = 0;
+        overlapMap.forEach((value: any, key: any) => {
+            const overlap: OverlappingSegments = {geoData: key, crossingLines: Array.from(value), directions: []};
+            overlapArray.push(overlap);
+
+            if (counter < 10)
+                console.log(JSON.stringify(overlapArray[counter]));
+            
+            counter++;
+        });
+
+
     };
 
     updateLayers = (geojsonByLayerName) => {
