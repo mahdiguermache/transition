@@ -498,14 +498,8 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
                         overlapMap.set(overlapStr, new Set());
 
                     overlapMap.get(overlapStr)?.add(features[i].id).add(features[j].id);
-<<<<<<< HEAD
                 }                              
-=======
-                }
 
-                
-                
->>>>>>> 4e9342d9b5e1dec453d717674e0725c5728885b7
             }
         }
 
@@ -513,14 +507,11 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
 
         let counter = 0;
         overlapMap.forEach((value: any, key: any) => {
-<<<<<<< HEAD
+
             let segmentDirections: Array<boolean> = new Array();
             value.forEach((id : number) => {
                 const data = JSON.parse(this.getLineById(id));
-=======
-            value.forEach((item : number) => {
-                const data = JSON.parse(this.getLineById(item));
->>>>>>> 4e9342d9b5e1dec453d717674e0725c5728885b7
+
                 const coordinates = JSON.parse(key).geometry.coordinates;
                 console.log( " Coordinates : " + JSON.stringify(coordinates));
                 const firstPoint = coordinates[0];
