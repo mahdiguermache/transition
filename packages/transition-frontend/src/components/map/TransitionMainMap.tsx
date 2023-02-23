@@ -472,9 +472,10 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
     };
 
     updateLayer = (layerName: string, geojson: GeoJSON.FeatureCollection) => {
-        //console.log('updating map layer', layerName, geojson);
         this.layerManager.updateLayer(layerName, geojson);
         const layerData = serviceLocator.layerManager._layersByName['transitPaths'].source.data;
+
+
         //console.log("Layer data ici test :" + JSON.stringify(layerData.features));
         // let indice:number = 1;
         // layerData.features.forEach((element)=>{
@@ -491,34 +492,77 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
                 if (overlap.features.length == 0)
                     continue;
 
-                const overlapStr = JSON.stringify(overlap);
-                if (!overlapMap.has(overlapStr))
-                    overlapMap.set(overlapStr, new Set())
+                for (const segment of overlap.features) {
+                    const overlapStr = JSON.stringify(segment);
+                    if (!overlapMap.has(overlapStr))
+                        overlapMap.set(overlapStr, new Set());
 
-                overlapMap.get(overlapStr)?.add(features[i].id).add(features[j].id);
-                
+                    overlapMap.get(overlapStr)?.add(features[i].id).add(features[j].id);
+                }                              
             }
         }
-
-        
-
-        //console.log(overlapMap.size);
 
         const overlapArray: OverlappingSegments[] = [];
 
         let counter = 0;
         overlapMap.forEach((value: any, key: any) => {
-            const overlap: OverlappingSegments = {geoData: key, crossingLines: Array.from(value), directions: []};
-            overlapArray.push(overlap);
+            let segmentDirections: Array<boolean> = new Array();
+            value.forEach((id : number) => {
+                const data = JSON.parse(this.getLineById(id));
+                const coordinates = JSON.parse(key).geometry.coordinates;
+                console.log( " Coordinates : " + JSON.stringify(coordinates));
+                const firstPoint = coordinates[0];
+                const lastPoint = coordinates[coordinates.length-1];
+                console.log("DATA : "+ JSON.stringify(data));
+                console.log("premier point : " + firstPoint);
+                console.log("dernier point : "+lastPoint);
+                for(let i = 0; i < data.geometry.coordinates.length-1 ;i++ ){
+                    const actualPoint = data.geometry.coordinates[i];
+                    console.log(" point actuel : " + actualPoint);
+                        if(actualPoint[0] == firstPoint[0] && actualPoint[1] == firstPoint[1] ){
+                            console.log(" meme direction");
+                            segmentDirections.push(true);
+                            break;
+                        }else if (actualPoint[0] == lastPoint[0] && actualPoint[1] == lastPoint[1] ){
+                            console.log(" mauvaise direction");
+                            segmentDirections.push(false);
+                            break;
+                        }
+                }
 
-            if (counter < 10)
-                console.log(JSON.stringify(overlapArray[counter]));
+            });
+            // for(let i = 0 ; i < JSON.parse(key).geoData; i++){
+            //     const segment = JSON.parse(key);
+            //     this.getLineById(i);
+            // }
+            const overlap: OverlappingSegments = {geoData: key, crossingLines: Array.from(value), directions: segmentDirections};
+            overlapArray.push(overlap);     
             
+            if(counter<10)     
+            console.log(JSON.stringify(overlapArray[counter]));
             counter++;
+            
         });
+        
+        this.layerManager.updateLayer(layerName, geojson);
 
 
     };
+
+    getLineById = (
+        lineId: number
+    ): string => {
+        const layerData = serviceLocator.layerManager._layersByName['transitPaths'].source.data;
+        const features = layerData.features;
+        for(let i = 0; i< features.length -1 ; i++){
+            if(features[i].id === lineId){
+                return JSON.stringify(features[i]);
+            }
+        }       
+        return "";
+    }
+
+    // updateLine = ()
 
     updateLayers = (geojsonByLayerName) => {
         //console.log('updating map layers', Object.keys(geojsonByLayerName));
