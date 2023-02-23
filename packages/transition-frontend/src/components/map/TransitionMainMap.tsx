@@ -498,7 +498,14 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
                         overlapMap.set(overlapStr, new Set());
 
                     overlapMap.get(overlapStr)?.add(features[i].id).add(features[j].id);
+<<<<<<< HEAD
                 }                              
+=======
+                }
+
+                
+                
+>>>>>>> 4e9342d9b5e1dec453d717674e0725c5728885b7
             }
         }
 
@@ -506,9 +513,14 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
 
         let counter = 0;
         overlapMap.forEach((value: any, key: any) => {
+<<<<<<< HEAD
             let segmentDirections: Array<boolean> = new Array();
             value.forEach((id : number) => {
                 const data = JSON.parse(this.getLineById(id));
+=======
+            value.forEach((item : number) => {
+                const data = JSON.parse(this.getLineById(item));
+>>>>>>> 4e9342d9b5e1dec453d717674e0725c5728885b7
                 const coordinates = JSON.parse(key).geometry.coordinates;
                 console.log( " Coordinates : " + JSON.stringify(coordinates));
                 const firstPoint = coordinates[0];
@@ -516,6 +528,7 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
                 console.log("DATA : "+ JSON.stringify(data));
                 console.log("premier point : " + firstPoint);
                 console.log("dernier point : "+lastPoint);
+
                 for(let i = 0; i < data.geometry.coordinates.length-1 ;i++ ){
                     const actualPoint = data.geometry.coordinates[i];
                     console.log(" point actuel : " + actualPoint);
@@ -535,6 +548,7 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
             //     const segment = JSON.parse(key);
             //     this.getLineById(i);
             // }
+
             const overlap: OverlappingSegments = {geoData: key, crossingLines: Array.from(value), directions: segmentDirections};
             overlapArray.push(overlap);     
             
@@ -542,6 +556,7 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
             console.log(JSON.stringify(overlapArray[counter]));
             counter++;
             
+
         });
         
         this.layerManager.updateLayer(layerName, geojson);
@@ -549,7 +564,9 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
 
     };
 
+
     getLineById = (
+
         lineId: number
     ): string => {
         const layerData = serviceLocator.layerManager._layersByName['transitPaths'].source.data;
@@ -561,8 +578,6 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
         }       
         return "";
     }
-
-    // updateLine = ()
 
     updateLayers = (geojsonByLayerName) => {
         //console.log('updating map layers', Object.keys(geojsonByLayerName));
