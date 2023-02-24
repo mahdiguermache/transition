@@ -486,9 +486,10 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
         //console.log(JSON.stringify(features));
 
         const overlapMap: Map<string, Set<number>> = new Map();
-        for(let i = 0; i < features.length -2 ; i++){
-            for(let j = i + 1; j < features.length -1 ; j++){
+        for(let i = 0; i < features.length -1 ; i++){
+            for(let j = i + 1; j < features.length ; j++){
                 const overlap = turf.lineOverlap( turf.lineString(features[i].geometry.coordinates), turf.lineString(features[j].geometry.coordinates ) );
+                // console.log("Indice i :" + i + " indice j :" +j+ " " + JSON.stringify(overlap));
                 if (overlap.features.length == 0)
                     continue;
 
@@ -513,22 +514,23 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
                 const data = JSON.parse(this.getLineById(id));
 
                 const coordinates = JSON.parse(key).geometry.coordinates;
-                console.log( " Coordinates : " + JSON.stringify(coordinates));
+                // console.log( " Coordinates : " + JSON.stringify(coordinates));
                 const firstPoint = coordinates[0];
                 const lastPoint = coordinates[coordinates.length-1];
-                console.log("DATA : "+ JSON.stringify(data));
-                console.log("premier point : " + firstPoint);
-                console.log("dernier point : "+lastPoint);
+                // console.log("DATA : "+ JSON.stringify(data));
+                // console.log("premier point : " + firstPoint);
+                // console.log("dernier point : "+lastPoint);
 
-                for(let i = 0; i < data.geometry.coordinates.length-1 ;i++ ){
+                //length et non pas length -1 
+                for(let i = 0; i < data.geometry.coordinates.length;i++ ){
                     const actualPoint = data.geometry.coordinates[i];
-                    console.log(" point actuel : " + actualPoint);
+                    // console.log(" point actuel : " + actualPoint);
                         if(actualPoint[0] == firstPoint[0] && actualPoint[1] == firstPoint[1] ){
-                            console.log(" meme direction");
+                            
                             segmentDirections.push(true);
                             break;
                         }else if (actualPoint[0] == lastPoint[0] && actualPoint[1] == lastPoint[1] ){
-                            console.log(" mauvaise direction");
+                          
                             segmentDirections.push(false);
                             break;
                         }
@@ -544,32 +546,143 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
             overlapArray.push(overlap);     
             
             if(counter<10)     
-            console.log(JSON.stringify(overlapArray[counter]));
+            // console.log(JSON.stringify(overlapArray[counter]));
             counter++;
             
 
         });
-        
+           //     for(let i = 0; i < layerData.features.length; i++){
+    //     // console.log('Avant ' + i + JSON.stringify(layerData.features[i].geometry.coordinates));   
+    //     let offsetLine = turf.lineOffset(layerData.features[i], 10 * i , {units: 'meters'});
+    //     // console.log('Apres' + i + JSON.stringify(offsetLine.geometry.coordinates));
+    //     serviceLocator.layerManager._layersByName['transitPaths'].source.data.features[i].geometry.coordinates = offsetLine.geometry.coordinates;    
+    // }
+
+        //Appliquer le offset
+        for(let i = 0; i < overlapArray.length ; i++){
+            const nbOverlapped = overlapArray[i].directions.length;
+            // console.log("on rentre dans le premier for et nboverlapped vaut :" + nbOverlapped);
+            let oppositeDirectionOffset = 0;
+            let sameDirectionOffset = 0;
+
+            for(let j=0; j < nbOverlapped ; j++){
+                const segment = overlapArray[i].geoData;
+                if(overlapArray[i].directions[j]){
+                    // console.log("on rentre dans le if meme direction");
+                    // if(sameDirectionOffset> 0){
+                    let offsetLine = turf.lineOffset(JSON.parse(segment), 10 * sameDirectionOffset , {units: 'meters'});
+                    // }
+                    this.replaceCoordinate(segment,JSON.stringify(offsetLine),overlapArray[i].crossingLines[j]);
+                    sameDirectionOffset++;
+                }else {
+                    // console.log("on rentre dans le if direction opposee");
+                    // console.log(" ligne avant reverse : " + segment);
+                    let reverseCoordinates = JSON.parse(segment).geometry.coordinates.slice().reverse();
+                    let reverseLine = JSON.parse(segment);
+                    reverseLine.geometry.coordinates = reverseCoordinates;
+                    // console.log(" ligne apres reverse : " + JSON.stringify(reverseLine));
+                    // if(oppositeDirectionOffset > 0){
+                    let offsetLine = turf.lineOffset(reverseLine, 10 * oppositeDirectionOffset , {units: 'meters'});
+                    // }
+                    this.replaceCoordinate(JSON.stringify(reverseLine),JSON.stringify(offsetLine),overlapArray[i].crossingLines[j]);
+                    oppositeDirectionOffset++;
+                }
+
+                // console.log("Segment de superposition courant : " + segment);
+                // let nbSameDirection = this.countLinesForSameDirection(overlapArray[i].directions);
+                // let nbOppositeDirection = nbOverlapped - nbSameDirection;
+                
+                // on voit combien de conflit sur ce meme segment
+                // on voit la direction
+                // on applique un offset en fonction des 2 params precedents
+                
+
+                //on va modifier la portion de la ligne dont le segment provient par le nouveau segment-offset
+            }
+        }
         this.layerManager.updateLayer(layerName, geojson);
 
 
     };
 
+    replaceCoordinate = (lineToReplace:string, offsetLine:string, lineId:number) => {
+        
+            // let data = this.getLineById(lineId);
+            const oldGeoData = JSON.parse(lineToReplace);
+            const newGeoData = JSON.parse(offsetLine);
 
-    getLineById = (
+            let line = JSON.parse(this.getLineById(lineId));
+            // console.log("1 lineid :" + lineId);
+            // console.log(" oldgeodata " + JSON.stringify(oldGeoData));
+            const oldCoordinates = oldGeoData.geometry.coordinates;
+            // console.log("2");
+            const length = oldCoordinates.length;
 
-        lineId: number
-    ): string => {
-        const layerData = serviceLocator.layerManager._layersByName['transitPaths'].source.data;
-        const features = layerData.features;
-        for(let i = 0; i< features.length -1 ; i++){
-            if(features[i].id === lineId){
-                return JSON.stringify(features[i]);
+           
+            const firstPoint = oldCoordinates[0];
+           
+
+            //length et non pas length - 1 
+            for(let i = 0; i < line.geometry.coordinates.length;i++ ){
+                // console.log("3");
+                const actualPoint = line.geometry.coordinates[i];
+                // console.log("4");
+                if(actualPoint[0] == firstPoint[0] && actualPoint[1] == firstPoint[1] ){   
+                    for(let j = 0 ; j < length; j++){
+                        // console.log("5");
+                        line.geometry.coordinates[i + j] = newGeoData.geometry.coordinates[j];
+                        // console.log("6");
+                    }                                      
+                }
             }
-        }       
-        return "";
-    }
+            let lineIndex = this.getLineIndexById(lineId);
 
+            serviceLocator.layerManager._layersByName['transitPaths'].source.data.features[lineIndex].geometry.coordinates = line.geometry.coordinates;    
+
+    }
+        
+        
+
+        getLineById = (
+            
+            lineId: number
+            ): string => {
+                const layerData = serviceLocator.layerManager._layersByName['transitPaths'].source.data;
+                const features = layerData.features;
+                //length et non pas length -1 
+                for(let i = 0; i < features.length ; i++){
+                    if(features[i].id === lineId){
+                        return JSON.stringify(features[i]);
+                    }
+                }       
+                return "";
+            }
+
+        getLineIndexById = (
+            
+            lineId: number
+            ): number => {
+                const layerData = serviceLocator.layerManager._layersByName['transitPaths'].source.data;
+                const features = layerData.features;
+                //length et non pas length -1 
+                for(let i = 0; i < features.length ; i++){
+                    if(features[i].id === lineId){
+                        return i;
+                    }
+                }       
+                return -1;
+            }
+            
+            // countLinesForSameDirection = ( directions: Array<Boolean>) :number => {
+            //     let nbSameDirection = 0;
+            //     //length et non pas length -1 
+            //     for(let i =0; i<directions.length-1;i++){
+            //         if(directions[i]== true){
+            //            nbSameDirection ++;
+            //         }
+            //     }
+            //     return nbSameDirection;
+            // }
     updateLayers = (geojsonByLayerName) => {
         //console.log('updating map layers', Object.keys(geojsonByLayerName));
         this.layerManager.updateLayers(geojsonByLayerName);
