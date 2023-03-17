@@ -17,6 +17,9 @@ export const manageOverlappingLines = (layerData: GeoJSON.FeatureCollection):voi
 
 const findOverlapingLines = (layerData: GeoJSON.FeatureCollection):Map<GeoJSON.Feature<GeoJSON.LineString>, Set<number>> => {
     const features = layerData.features as any;
+    // On cree une map qui contiendra des binomes de feature/ensemble de chiffre. 
+    // La feature est le segment en conflit d'overlap et l'ensemble de chiffre est
+    // l'ensemble des ID des lignes concernees par ce conflit sur ce segment la. 
     const overlapMap: Map<GeoJSON.Feature<GeoJSON.LineString>, Set<number>> = new Map();
     for (let i = 0; i < features.length - 1; i++) {
         for (let j = i + 1; j < features.length; j++) {
@@ -24,7 +27,7 @@ const findOverlapingLines = (layerData: GeoJSON.FeatureCollection):Map<GeoJSON.F
                 turf.lineString(features[i].geometry.coordinates),
                 turf.lineString(features[j].geometry.coordinates)
             );
-            if (overlap.features.length == 0) continue;
+            if (overlap.features.length === 0) continue;
             for (const segment of overlap.features) {
                 const overlap = segment;
                 if (!overlapMap.has(overlap)) overlapMap.set(overlap, new Set());
@@ -99,8 +102,11 @@ const replaceCoordinate = (lineToReplace: GeoJSON.Feature<GeoJSON.LineString>, o
     const oldCoordinates = lineToReplace.geometry.coordinates;
     const length = oldCoordinates.length;
     const firstPoint = oldCoordinates[0];
+    // On parcourt l'ensemble des coordonnees de chaque LineString jusqu'a rencontrer le point de depart du segment qu'on cherche a remplacer
     for (let i = 0; i < line.geometry.coordinates.length; i++) {
         const actualPoint = line.geometry.coordinates[i];
+        // La condition sert a verifier si le point courant de la boucle correspond au premier point du segment qu'on cherche a remplacer
+        // Si c'est le cas on remplace chaque point subsequent compris dans le segment concerne par la superposition, par les nouvelles coordonnees decalees
         if (actualPoint[0] == firstPoint[0] && actualPoint[1] == firstPoint[1]) {
             for (let j = 0; j < length; j++) {
                 line.geometry.coordinates[i + j] = offsetLine.geometry.coordinates[j];
