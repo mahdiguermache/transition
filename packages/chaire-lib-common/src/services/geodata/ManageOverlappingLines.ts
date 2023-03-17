@@ -1,6 +1,9 @@
 import * as turf from '@turf/turf';
+import MapboxGL from 'mapbox-gl';
 
 import serviceLocator from '../../utils/ServiceLocator';
+
+const zoomLimit: number = 13; //Zoom levels smaller than this will not apply line separation
 
 interface OverlappingSegments {
     geoData: string;
@@ -13,6 +16,11 @@ export const manageOverlappingLines = () => {
     const overlapArray = manageOverlapingSegmentsData(overlapMap);
     applyOffset(overlapArray);
 };
+
+export const manageZoom = (bounds: MapboxGL.LngLatBounds, zoom: number): void => {
+    console.log(bounds);
+    console.log(zoom);
+}
 
 const applyOffset = (overlapArray: OverlappingSegments[]) => {
     for (let i = 0; i < overlapArray.length; i++) {
@@ -133,3 +141,4 @@ const getLineIndexById = (lineId: number): number => {
     }
     return -1;
 };
+
