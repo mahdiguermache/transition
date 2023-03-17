@@ -466,7 +466,8 @@ class MainMap extends React.Component<MainMapProps, MainMapState> {
 
     updateLayer = (layerName: string, geojson: GeoJSON.FeatureCollection) => {
         //console.log('updating map layer', layerName, geojson);
-        manageOverlappingLines();
+        const layerData = serviceLocator.layerManager._layersByName['transitPaths'].source.data;
+        manageOverlappingLines(layerData);
         this.layerManager.updateLayer(layerName, geojson);
     };
 
