@@ -95,16 +95,15 @@ const applyOffset = (overlapArray: OverlappingSegments[], layerData: GeoJSON.Fea
 };
 
 const replaceCoordinate = (
-    lineToReplace: GeoJSON.Feature<GeoJSON.LineString>,
-    offsetLine: GeoJSON.Feature<GeoJSON.LineString>,
-    lineId: number,
-    layerData: GeoJSON.FeatureCollection
+    oldSegment: GeoJSON.Feature<GeoJSON.LineString>, 
+    offsettedSegment: GeoJSON.Feature<GeoJSON.LineString>, 
+    lineId: number,                                 
+    layerData: GeoJSON.FeatureCollection            
 ): void => {
-    const line = getLineById(lineId, layerData);
-    const oldCoordinates = lineToReplace.geometry.coordinates;
-    const length = oldCoordinates.length;
-    const firstPoint = oldCoordinates[0];
-    const lastPoint = oldCoordinates[oldCoordinates.length-1];
+    const line = getLineById(lineId, layerData);  
+    const oldSegmentCoordinates = oldSegment.geometry.coordinates;  
+    const length = oldSegmentCoordinates.length; 
+    const firstPoint = oldSegmentCoordinates[0];  
     // We go through the coordinates of every single LineString until we reach the starting point of the segment we want to replace
     for (let i = 0; i < line.geometry.coordinates.length; i++) {
         const actualPoint = line.geometry.coordinates[i];
@@ -112,7 +111,7 @@ const replaceCoordinate = (
         // If the condition is verified we replace every subsequent point by the new coordinates with the applied offset
         if (actualPoint[0] === firstPoint[0] && actualPoint[1] === firstPoint[1]) {
             for (let j = 0; j < length; j++) {
-                line.geometry.coordinates[i + j] = offsetLine.geometry.coordinates[j];
+                line.geometry.coordinates[i + j] = offsettedSegment.geometry.coordinates[j];
             }
         }
     }
