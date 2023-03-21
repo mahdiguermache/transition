@@ -18,8 +18,24 @@ export const manageOverlappingLines = () => {
 };
 
 export const manageZoom = (bounds: MapboxGL.LngLatBounds, zoom: number): void => {
-    console.log(bounds);
-    console.log(zoom);
+    //console.log(bounds);
+    //console.log(zoom);
+    const lineIDs: number[] = [];
+    const layerData = serviceLocator.layerManager._layersByName['transitPaths'].source.data;
+    const features = layerData.features;
+    for (let i = 0; i < features.length; i++) {
+        for (let j = 0; j < features[i].geometry.coordinates.length; j++) {
+            if (isInBounds(bounds, features[i].geometry.coordinates[j])) {
+                lineIDs.push(features[i].id);
+                break;
+            }
+        }
+    }
+    console.log(lineIDs);
+}
+
+const isInBounds = (bounds: MapboxGL.LngLatBounds, coord: number[]): boolean => {
+    return bounds.contains(new MapboxGL.LngLat(coord[0], coord[1]));
 }
 
 const applyOffset = (overlapArray: OverlappingSegments[]) => {
