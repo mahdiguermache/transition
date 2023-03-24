@@ -8,42 +8,42 @@ interface OverlappingSegments {
     directions: boolean[];
 }
 
-export const manageOverlappingLines = (layerData: GeoJSON.FeatureCollection):GeoJSON.FeatureCollection => {
-    const overlapMap = findOverlapingLines(layerData);
-    const overlapArray = manageOverlapingSegmentsData(overlapMap, layerData);
-    return applyOffset(overlapArray,layerData);
+export const manageOverlappingLines = async (layerData: GeoJSON.FeatureCollection):Promise<GeoJSON.FeatureCollection> => {
+    const overlapMap = await findOverlappingLines(layerData);
+    const overlapArray = await manageOverlappingSegmentsData(overlapMap, layerData);
+    return await applyOffset(overlapArray,layerData);
 };
 
-const applyOffset = (overlapArray: OverlappingSegments[],layerData: GeoJSON.FeatureCollection): GeoJSON.FeatureCollection => {
+const applyOffset = async (overlapArray: OverlappingSegments[], layerData: GeoJSON.FeatureCollection): Promise<GeoJSON.FeatureCollection> => {
     for (let i = 0; i < overlapArray.length; i++) {
-        const nbOverlapped = overlapArray[i].directions.length;
-        let oppositeDirectionOffset = 0;
-        let sameDirectionOffset = 0;
-        for (let j = 0; j < nbOverlapped; j++) {
-            const segment = overlapArray[i].geoData;
-            if (overlapArray[i].directions[j]) {
-                const offsetLine = lineOffset(JSON.parse(segment), 3 * sameDirectionOffset, { units: 'meters' });
-                replaceCoordinate(segment, JSON.stringify(offsetLine), overlapArray[i].crossingLines[j],layerData);
-                sameDirectionOffset++;
-            } else {
-                const reverseCoordinates = JSON.parse(segment).geometry.coordinates.slice().reverse();
-                const reverseLine = JSON.parse(segment);
-                reverseLine.geometry.coordinates = reverseCoordinates;
-                const offsetLine = lineOffset(reverseLine, 3 * oppositeDirectionOffset, { units: 'meters' });
-                replaceCoordinate(
-                    JSON.stringify(reverseLine),
-                    JSON.stringify(offsetLine),
-                    overlapArray[i].crossingLines[j],
-                    layerData
-                );
-                oppositeDirectionOffset++;
-            }
+      const nbOverlapped = overlapArray[i].directions.length;
+      let oppositeDirectionOffset = 0;
+      let sameDirectionOffset = 0;
+      for (let j = 0; j < nbOverlapped; j++) {
+        const segment = overlapArray[i].geoData;
+        if (overlapArray[i].directions[j]) {
+          const offsetLine = await lineOffset(JSON.parse(segment), 3 * sameDirectionOffset, { units: 'meters' });
+          replaceCoordinate(segment, JSON.stringify(offsetLine), overlapArray[i].crossingLines[j], layerData);
+          sameDirectionOffset++;
+        } else {
+          const reverseCoordinates = JSON.parse(segment).geometry.coordinates.slice().reverse();
+          const reverseLine = JSON.parse(segment);
+          reverseLine.geometry.coordinates = reverseCoordinates;
+          const offsetLine = await lineOffset(reverseLine, 3 * oppositeDirectionOffset, { units: 'meters' });
+          replaceCoordinate(
+            JSON.stringify(reverseLine),
+            JSON.stringify(offsetLine),
+            overlapArray[i].crossingLines[j],
+            layerData
+          );
+          oppositeDirectionOffset++;
         }
+      }
     }
     return layerData;
-};
+  };
 
-const findOverlapingLines = (layerData: GeoJSON.FeatureCollection) : Map<string, Set<number>> => {
+const findOverlappingLines = async (layerData: GeoJSON.FeatureCollection) : Promise<Map<string, Set<number>>> => {
     const features = layerData.features as any;
     // The map contains the feature and a set of numbers
     // The feature is the segment concerned by the overlap
@@ -66,12 +66,12 @@ const findOverlapingLines = (layerData: GeoJSON.FeatureCollection) : Map<string,
     return overlapMap;
 };
 
-const manageOverlapingSegmentsData = (overlapMap: Map<string, Set<number>>, layerData: GeoJSON.FeatureCollection): OverlappingSegments[] => {
+const manageOverlappingSegmentsData = async (overlapMap: Map<string, Set<number>>, layerData: GeoJSON.FeatureCollection): Promise<OverlappingSegments[]> => {
     const overlapArray: OverlappingSegments[] = [];
-    overlapMap.forEach((value: any, key: any) => {
+    for (let [key, value] of overlapMap.entries()) {
         const segmentDirections: Array<boolean> = [];
-        value.forEach((id: number) => {
-            const data = JSON.parse(getLineById(id,layerData));
+        for (let id of value) {
+            const data = JSON.parse(await getLineById(id,layerData));
             const coordinates = JSON.parse(key).geometry.coordinates;
             const firstPoint = coordinates[0];
             const lastPoint = coordinates[coordinates.length - 1];
@@ -85,40 +85,47 @@ const manageOverlapingSegmentsData = (overlapMap: Map<string, Set<number>>, laye
                     break;
                 }
             }
-        });
+        }
         const overlap: OverlappingSegments = {
             geoData: key,
             crossingLines: Array.from(value),
             directions: segmentDirections
         };
         overlapArray.push(overlap);
-    });
+    }
     return overlapArray;
 };
 
-const replaceCoordinate = (lineToReplace: string, offsetLine: string, lineId: number, layerData: GeoJSON.FeatureCollection): void=> {
-    const oldGeoData = JSON.parse(lineToReplace);
-    const newGeoData = JSON.parse(offsetLine);
-    const line = JSON.parse(getLineById(lineId,layerData));
-    const oldCoordinates = oldGeoData.geometry.coordinates;
-    const length = oldCoordinates.length;
-    const firstPoint = oldCoordinates[0];
-    // We go through the coordinates of every single LineString until we reach the starting point of the segment we want to replace
-    for (let i = 0; i < line.geometry.coordinates.length; i++) {
-        const actualPoint = line.geometry.coordinates[i];
-        // We use this condition to know when the current point of the loop matches with the first point of the segment we want to replace
-        // If the condition is verified we replace every subsequent point by the new coordinates with the applied offset
-        if (actualPoint[0] === firstPoint[0] && actualPoint[1] === firstPoint[1]) {
+const replaceCoordinate = async (lineToReplace: string, offsetLine: string, lineId: number, layerData: GeoJSON.FeatureCollection): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      try {
+        const oldGeoData = JSON.parse(lineToReplace);
+        const newGeoData = JSON.parse(offsetLine);
+        const line = JSON.parse(getLineById(lineId, layerData));
+        const oldCoordinates = oldGeoData.geometry.coordinates;
+        const length = oldCoordinates.length;
+        const firstPoint = oldCoordinates[0];
+        // We go through the coordinates of every single LineString until we reach the starting point of the segment we want to replace
+        for (let i = 0; i < line.geometry.coordinates.length; i++) {
+          const actualPoint = line.geometry.coordinates[i];
+          // We use this condition to know when the current point of the loop matches with the first point of the segment we want to replace
+          // If the condition is verified we replace every subsequent point by the new coordinates with the applied offset
+          if (actualPoint[0] === firstPoint[0] && actualPoint[1] === firstPoint[1]) {
             for (let j = 0; j < length; j++) {
-                line.geometry.coordinates[i + j] = newGeoData.geometry.coordinates[j];
+              line.geometry.coordinates[i + j] = newGeoData.geometry.coordinates[j];
             }
+          }
         }
-    }
-    const lineIndex = getLineIndexById(lineId,layerData);
-    let geoData = layerData as any;
-    geoData.features[lineIndex].geometry.coordinates =
-        line.geometry.coordinates;
-};
+        const lineIndex = getLineIndexById(lineId, layerData);
+        let geoData = layerData as any;
+        geoData.features[lineIndex].geometry.coordinates =
+          line.geometry.coordinates;
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
+  };
 
 const getLineById = (lineId: number,layerData: GeoJSON.FeatureCollection): string => {
     const features = layerData.features as any;
