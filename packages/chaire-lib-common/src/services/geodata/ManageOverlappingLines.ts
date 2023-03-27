@@ -9,9 +9,13 @@ interface OverlappingSegments {
 }
 
 export const manageOverlappingLines = async (layerData: GeoJSON.FeatureCollection):Promise<GeoJSON.FeatureCollection> => {
-    const overlapMap = await findOverlappingLines(layerData);
-    const overlapArray = await manageOverlappingSegmentsData(overlapMap, layerData);
-    return await applyOffset(overlapArray,layerData);
+    return findOverlappingLines(layerData)
+    .then((overlapMap) => {
+      return manageOverlappingSegmentsData(overlapMap, layerData);
+    })
+    .then((overlapArray) => {
+      return applyOffset(overlapArray, layerData);
+    });
 };
 
 const applyOffset = async (overlapArray: OverlappingSegments[], layerData: GeoJSON.FeatureCollection): Promise<GeoJSON.FeatureCollection> => {
