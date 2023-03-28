@@ -44,6 +44,7 @@ const onDragEnd = (e: MapboxGL.MapMouseEvent) => {
             'map.center': [centerLatLng.lng, centerLatLng.lat]
         });
     }, 1000)();
+    manageZoom(e.target.getBounds(), e.target.getZoom());
 };
 
 const onDragStart = (e: MapboxGL.MapMouseEvent) => {

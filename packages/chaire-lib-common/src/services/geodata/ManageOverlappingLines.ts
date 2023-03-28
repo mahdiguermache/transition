@@ -3,7 +3,8 @@ import MapboxGL from 'mapbox-gl';
 
 import serviceLocator from '../../utils/ServiceLocator';
 
-const zoomLimit: number = 13; //Zoom levels smaller than this will not apply line separation
+const zoomLimit: number = 14; //Zoom levels smaller than this will not apply line separation
+let originalLayer;
 
 interface OverlappingSegments {
     geoData: string;
@@ -12,26 +13,48 @@ interface OverlappingSegments {
 }
 
 export const manageOverlappingLines = () => {
-    const overlapMap = findOverlapingLines();
-    const overlapArray = manageOverlapingSegmentsData(overlapMap);
-    applyOffset(overlapArray);
+    // const overlapMap = findOverlapingLines();
+    // const overlapArray = manageOverlapingSegmentsData(overlapMap);
+    // applyOffset(overlapArray);
 };
 
 export const manageZoom = (bounds: MapboxGL.LngLatBounds, zoom: number): void => {
-    //console.log(bounds);
-    //console.log(zoom);
-    const lineIDs: number[] = [];
-    const layerData = serviceLocator.layerManager._layersByName['transitPaths'].source.data;
+    if (!originalLayer) { //Site does not initialize if original layer is initialized as a constant
+        originalLayer = JSON.parse(JSON.stringify(serviceLocator.layerManager._layersByName['transitPaths'].source.data)); //Deep copy of original layer
+    }
+    console.log("Starting")
+    if (zoom <= zoomLimit) {
+        console.log("Finished: " + zoom)
+        return;
+    }
+
+    const linesInView: any[] = [];
+    const layerData = originalLayer;
     const features = layerData.features;
+    //console.log("Features: " + features.length);
     for (let i = 0; i < features.length; i++) {
         for (let j = 0; j < features[i].geometry.coordinates.length; j++) {
             if (isInBounds(bounds, features[i].geometry.coordinates[j])) {
-                lineIDs.push(features[i].id);
+                linesInView.push(features[i]);
                 break;
             }
         }
     }
-    console.log(lineIDs);
+    //console.log("Lines in view: " + linesInView.length);
+    const overlapMap = findOverlapingLines(linesInView);
+    //console.log("Found overlapping lines: " + overlapMap.size);
+    //console.log(overlapMap);
+    const overlapArray = manageOverlapingSegmentsData(overlapMap);
+    //console.log("Segments data");
+    applyOffset(overlapArray);
+    console.log("Finished: " + zoom)
+    serviceLocator.eventManager.emit(
+        'map.updateLayer',
+        'transitPaths',
+        serviceLocator.collectionManager.get('paths').toGeojson()
+    );
+    //return linesInView;
+    //console.log(lineIDs);
 }
 
 const isInBounds = (bounds: MapboxGL.LngLatBounds, coord: number[]): boolean => {
@@ -39,8 +62,10 @@ const isInBounds = (bounds: MapboxGL.LngLatBounds, coord: number[]): boolean => 
 }
 
 const applyOffset = (overlapArray: OverlappingSegments[]) => {
+    //console.log("i: " + overlapArray.length); 
     for (let i = 0; i < overlapArray.length; i++) {
         const nbOverlapped = overlapArray[i].directions.length;
+        //console.log("j: " + nbOverlapped); 
         let oppositeDirectionOffset = 0;
         let sameDirectionOffset = 0;
         for (let j = 0; j < nbOverlapped; j++) {
@@ -65,9 +90,10 @@ const applyOffset = (overlapArray: OverlappingSegments[]) => {
     }
 };
 
-const findOverlapingLines = () => {
-    const layerData = serviceLocator.layerManager._layersByName['transitPaths'].source.data;
-    const features = layerData.features;
+const findOverlapingLines = (linesInView: any[]) => {
+    // const layerData = serviceLocator.layerManager._layersByName['transitPaths'].source.data;
+    // const features = layerData.features;
+    const features = linesInView;
     const overlapMap: Map<string, Set<number>> = new Map();
     for (let i = 0; i < features.length - 1; i++) {
         for (let j = i + 1; j < features.length; j++) {
