@@ -22,16 +22,14 @@ export const manageZoom = (bounds: MapboxGL.LngLatBounds, zoom: number): void =>
     if (!originalLayer) { //Site does not initialize if original layer is initialized as a constant
         originalLayer = JSON.parse(JSON.stringify(serviceLocator.layerManager._layersByName['transitPaths'].source.data)); //Deep copy of original layer
     }
-    console.log("Starting")
+
     if (zoom <= zoomLimit) {
-        console.log("Finished: " + zoom)
         return;
     }
 
     const linesInView: any[] = [];
     const layerData = originalLayer;
     const features = layerData.features;
-    //console.log("Features: " + features.length);
     for (let i = 0; i < features.length; i++) {
         for (let j = 0; j < features[i].geometry.coordinates.length; j++) {
             if (isInBounds(bounds, features[i].geometry.coordinates[j])) {
@@ -40,21 +38,15 @@ export const manageZoom = (bounds: MapboxGL.LngLatBounds, zoom: number): void =>
             }
         }
     }
-    //console.log("Lines in view: " + linesInView.length);
+    
     const overlapMap = findOverlapingLines(linesInView);
-    //console.log("Found overlapping lines: " + overlapMap.size);
-    //console.log(overlapMap);
     const overlapArray = manageOverlapingSegmentsData(overlapMap);
-    //console.log("Segments data");
     applyOffset(overlapArray);
-    console.log("Finished: " + zoom)
     serviceLocator.eventManager.emit(
         'map.updateLayer',
         'transitPaths',
         serviceLocator.collectionManager.get('paths').toGeojson()
     );
-    //return linesInView;
-    //console.log(lineIDs);
 }
 
 const isInBounds = (bounds: MapboxGL.LngLatBounds, coord: number[]): boolean => {
