@@ -13,7 +13,7 @@ export const manageOverlappingLines = async (layerData: GeoJSON.FeatureCollectio
     .then((overlapMap) => {
       return manageOverlappingSegmentsData(overlapMap, layerData);
     })
-    .then((overlapArray) => {
+    .then((overlapArray : OverlappingSegments[]) => {
       return applyOffset(overlapArray, layerData);
     });
 };
@@ -83,27 +83,31 @@ const findOverlappingLines = async (layerData: GeoJSON.FeatureCollection) : Prom
     });
 };
 
-const manageOverlappingSegmentsData = async (overlapMap: Map<string, Set<number>>, layerData: GeoJSON.FeatureCollection): Promise<OverlappingSegments[]> => {
-    return new Promise(async (resolve, reject) => {
+const manageOverlappingSegmentsData = (overlapMap, layerData) => {
+    return new Promise <OverlappingSegments[]>((resolve, reject) => {
         try {
             const overlapArray: OverlappingSegments[] = [];
             for (let [key, value] of overlapMap.entries()) {
                 const segmentDirections: Array<boolean> = [];
                 for (let id of value) {
-                    const data = JSON.parse(await getLineById(id,layerData));
-                    const coordinates = JSON.parse(key).geometry.coordinates;
-                    const firstPoint = coordinates[0];
-                    const lastPoint = coordinates[coordinates.length - 1];
-                    for (let i = 0; i < data.geometry.coordinates.length; i++) {
-                        const actualPoint = data.geometry.coordinates[i];
-                        if (actualPoint[0] === firstPoint[0] && actualPoint[1] === firstPoint[1]) {
-                            segmentDirections.push(true);
-                            break;
-                        } else if (actualPoint[0] === lastPoint[0] && actualPoint[1] === lastPoint[1]) {
-                            segmentDirections.push(false);
-                            break;
+                    getLineById(id, layerData).then((data) => {
+                        const dataObject = JSON.parse(data);
+                        const coordinates = JSON.parse(key).geometry.coordinates;
+                        const firstPoint = coordinates[0];
+                        const lastPoint = coordinates[coordinates.length - 1];
+                        for (let i = 0; i < dataObject.geometry.coordinates.length; i++) {
+                            const actualPoint = dataObject.geometry.coordinates[i];
+                            if (actualPoint[0] === firstPoint[0] && actualPoint[1] === firstPoint[1]) {
+                                segmentDirections.push(true);
+                                break;
+                            } else if (actualPoint[0] === lastPoint[0] && actualPoint[1] === lastPoint[1]) {
+                                segmentDirections.push(false);
+                                break;
+                            }
                         }
-                    }
+                    }).catch((error) => {
+                        reject(error);
+                    });
                 }
                 const overlap: OverlappingSegments = {
                     geoData: key,
@@ -113,10 +117,10 @@ const manageOverlappingSegmentsData = async (overlapMap: Map<string, Set<number>
                 overlapArray.push(overlap);
             }
             resolve(overlapArray);
-        }catch(error){
+        } catch (error) {
             reject(error);
         }
-    })
+    });
 };
 
 const replaceCoordinate = async (lineToReplace: string, offsetLine: string, lineId: number, layerData: GeoJSON.FeatureCollection): Promise<void> => {
