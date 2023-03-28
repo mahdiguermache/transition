@@ -29,20 +29,20 @@ const applyOffset = async (overlapArray: OverlappingSegments[], layerData: GeoJS
               for (let j = 0; j < nbOverlapped; j++) {
                 const segment = overlapArray[i].geoData;
                 if (overlapArray[i].directions[j]) {
-                  const offsetLine = await lineOffset(JSON.parse(segment), 3 * sameDirectionOffset, { units: 'meters' });
-                  replaceCoordinate(segment, JSON.stringify(offsetLine), overlapArray[i].crossingLines[j], layerData);
+                  //const offsetLine = await lineOffset(JSON.parse(segment), 3 * sameDirectionOffset, { units: 'meters' });
+                  //replaceCoordinate(segment, JSON.stringify(offsetLine), overlapArray[i].crossingLines[j], layerData);
                   sameDirectionOffset++;
                 } else {
                   const reverseCoordinates = JSON.parse(segment).geometry.coordinates.slice().reverse();
                   const reverseLine = JSON.parse(segment);
                   reverseLine.geometry.coordinates = reverseCoordinates;
-                  const offsetLine = await lineOffset(reverseLine, 3 * oppositeDirectionOffset, { units: 'meters' });
-                  replaceCoordinate(
-                    JSON.stringify(reverseLine),
-                    JSON.stringify(offsetLine),
-                    overlapArray[i].crossingLines[j],
-                    layerData
-                  );
+                  //const offsetLine = await lineOffset(reverseLine, 3 * oppositeDirectionOffset, { units: 'meters' });
+                //   replaceCoordinate(
+                //     JSON.stringify(reverseLine),
+                //     JSON.stringify(offsetLine),
+                //     overlapArray[i].crossingLines[j],
+                //     layerData
+                //   );
                   oppositeDirectionOffset++;
                 }
               }
@@ -128,25 +128,25 @@ const replaceCoordinate = async (lineToReplace: string, offsetLine: string, line
       try {
         const oldGeoData = JSON.parse(lineToReplace);
         const newGeoData = JSON.parse(offsetLine);
-        const line = JSON.parse(await getLineById(lineId, layerData));
+        //const line = JSON.parse(await getLineById(lineId, layerData));
         const oldCoordinates = oldGeoData.geometry.coordinates;
         const length = oldCoordinates.length;
         const firstPoint = oldCoordinates[0];
         // We go through the coordinates of every single LineString until we reach the starting point of the segment we want to replace
-        for (let i = 0; i < line.geometry.coordinates.length; i++) {
-          const actualPoint = line.geometry.coordinates[i];
-          // We use this condition to know when the current point of the loop matches with the first point of the segment we want to replace
-          // If the condition is verified we replace every subsequent point by the new coordinates with the applied offset
-          if (actualPoint[0] === firstPoint[0] && actualPoint[1] === firstPoint[1]) {
-            for (let j = 0; j < length; j++) {
-              line.geometry.coordinates[i + j] = newGeoData.geometry.coordinates[j];
-            }
-          }
-        }
-        const lineIndex = await getLineIndexById(lineId, layerData);
+        // for (let i = 0; i < line.geometry.coordinates.length; i++) {
+        //   const actualPoint = line.geometry.coordinates[i];
+        //   // We use this condition to know when the current point of the loop matches with the first point of the segment we want to replace
+        //   // If the condition is verified we replace every subsequent point by the new coordinates with the applied offset
+        //   if (actualPoint[0] === firstPoint[0] && actualPoint[1] === firstPoint[1]) {
+        //     for (let j = 0; j < length; j++) {
+        //       //line.geometry.coordinates[i + j] = newGeoData.geometry.coordinates[j];
+        //     }
+        //   }
+        // }
+        // const lineIndex = await getLineIndexById(lineId, layerData);
         let geoData = layerData as any;
-        geoData.features[lineIndex].geometry.coordinates =
-          line.geometry.coordinates;
+        // geoData.features[lineIndex].geometry.coordinates =
+        //   line.geometry.coordinates;
         resolve();
       } catch (error) {
         reject(error);
