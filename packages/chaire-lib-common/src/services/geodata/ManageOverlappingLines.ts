@@ -4,7 +4,7 @@ import MapboxGL from 'mapbox-gl';
 import serviceLocator from '../../utils/ServiceLocator';
 
 const zoomLimit: number = 14; //Zoom levels smaller than this will not apply line separation
-let originalLayer;
+let originalLayer; //Necessary so that offsets aren't applied to already offset lines after zoom
 
 interface OverlappingSegments {
     geoData: string;
@@ -19,7 +19,7 @@ export const manageOverlappingLines = () => {
 };
 
 export const manageZoom = (bounds: MapboxGL.LngLatBounds, zoom: number): void => {
-    if (!originalLayer) { //Site does not initialize if original layer is initialized as a constant
+    if (!originalLayer) { //Site does not load if original layer is initialized as a constant
         originalLayer = JSON.parse(JSON.stringify(serviceLocator.layerManager._layersByName['transitPaths'].source.data)); //Deep copy of original layer
     }
 
