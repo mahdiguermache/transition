@@ -25,12 +25,12 @@ export const manageZoom = (bounds: MapboxGL.LngLatBounds, zoom: number): void =>
     }
 
     //serviceLocator.layerManager._layersByName['transitPaths'].source.data = originalLayer;
-    let start = Date.now();
+    //let start = Date.now();
 
 
     const linesInView: GeoJSON.FeatureCollection<LineString> = JSON.parse(JSON.stringify(originalLayer));
-    const features = JSON.parse(JSON.stringify(linesInView.features)) as any;
     linesInView.features = [];
+    const features = originalLayer.features;
     for (let i = 0; i < features.length; i++) {
         for (let j = 0; j < features[i].geometry.coordinates.length; j++) {
             if (isInBounds(bounds, features[i].geometry.coordinates[j])) {
