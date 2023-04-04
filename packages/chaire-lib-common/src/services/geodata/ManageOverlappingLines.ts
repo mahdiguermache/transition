@@ -95,8 +95,7 @@ const applyOffset = (
             const segment = overlapArray[i].geoData;
             if (overlapArray[i].directions[j]) {
                 const offsetLine = lineOffset(segment, 3 * sameDirectionOffset, { units: 'meters' });
-                const replacedCoor = replaceCoordinate(segment, offsetLine, overlapArray[i].crossingLines[j], layerData);
-                layerData.features[replacedCoor.index].geometry.coordinates = replacedCoor.coor;
+                replaceCoordinate(segment, offsetLine, overlapArray[i].crossingLines[j], layerData);
                 sameDirectionOffset++;
                 // if (i === 0 && sameDirectionOffset === 1) {
                 //     console.log(segment);
@@ -108,8 +107,7 @@ const applyOffset = (
                 const reverseLine = segment;
                 reverseLine.geometry.coordinates = reverseCoordinates;
                 const offsetLine = lineOffset(reverseLine, 3 * oppositeDirectionOffset, { units: 'meters' });
-                const replacedCoor = replaceCoordinate(reverseLine, offsetLine, overlapArray[i].crossingLines[j], layerData);
-                layerData.features[replacedCoor.index].geometry.coordinates = replacedCoor.coor;
+                replaceCoordinate(reverseLine, offsetLine, overlapArray[i].crossingLines[j], layerData);
                 oppositeDirectionOffset++;
                 // if (i === 0 && oppositeDirectionOffset === 1) {
                 //     console.log(reverseLine);
@@ -127,7 +125,7 @@ const replaceCoordinate = (
     offsetLine: GeoJSON.Feature<LineString>,
     lineId: number,
     layerData: GeoJSON.FeatureCollection<LineString>
-): {index: number, coor: any} => {
+): void => {
     const line = getLineById(lineId, layerData);
     const oldCoordinates = lineToReplace.geometry.coordinates;
     const length = oldCoordinates.length;
@@ -155,7 +153,6 @@ const replaceCoordinate = (
     const lineIndex = getLineIndexById(lineId, layerData);
     //const geoData = layerData as any;
     layerData.features[lineIndex].geometry.coordinates = line.geometry.coordinates;
-    return {index: lineIndex, coor: line.geometry.coordinates};
 };
 
 const findOverlapingLines = (layerData: GeoJSON.FeatureCollection<LineString>): Map<string, Set<number>> => {
