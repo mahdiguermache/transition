@@ -24,10 +24,6 @@ export const manageZoom = (bounds: MapboxGL.LngLatBounds, zoom: number): void =>
         return;
     }
 
-    //serviceLocator.layerManager._layersByName['transitPaths'].source.data = originalLayer;
-    //let start = Date.now();
-
-
     const linesInView: GeoJSON.FeatureCollection<LineString> = JSON.parse(JSON.stringify(originalLayer));
     linesInView.features = [];
     const features = originalLayer.features;
@@ -39,24 +35,17 @@ export const manageZoom = (bounds: MapboxGL.LngLatBounds, zoom: number): void =>
             }
         }
     }
-    //linesInView.features = features;
-    //console.log("Found lines in view: " + (Date.now() - start).toString());
-    const overlapMap = findOverlapingLines(linesInView);
-    //console.log("Found overlapping lines: " + (Date.now() - start).toString());
-    const overlapArray = manageOverlapingSegmentsData(overlapMap, linesInView);
-    //console.log("Manage overlapping lines: " + (Date.now() - start).toString());
-    const offsetLayer = applyOffset(overlapArray, linesInView);
-    //console.log("Applied offset: " + (Date.now() - start).toString());
-    serviceLocator.layerManager._layersByName['transitPaths'].source.data = cleanLines(offsetLayer);
 
-    //const overlapArray = manageOverlapingSegmentsData(overlapMap, layerData);
-    //const offsetLayer = applyOffset(overlapArray, layerData);
+    const overlapMap = findOverlapingLines(linesInView);
+    const overlapArray = manageOverlapingSegmentsData(overlapMap);
+    applyOffset(overlapArray);
+    cleanLines();
+
     serviceLocator.eventManager.emit(
         'map.updateLayer',
         'transitPaths',
         serviceLocator.collectionManager.get('paths').toGeojson()
     );
-    //return cleanLines(offsetLayer);
 }
     
 
@@ -64,28 +53,24 @@ const isInBounds = (bounds: MapboxGL.LngLatBounds, coord: number[]): boolean => 
     return bounds.contains(new MapboxGL.LngLat(coord[0], coord[1]));
 }
 
-export const manageOverlappingLines = (
-    layerData: GeoJSON.FeatureCollection<LineString>
-): GeoJSON.FeatureCollection<LineString> => {
-    const overlapMap = findOverlapingLines(layerData);
-    const overlapArray = manageOverlapingSegmentsData(overlapMap, layerData);
-    const offsetLayer = applyOffset(overlapArray, layerData);
-    return cleanLines(offsetLayer);
-};
+// export const manageOverlappingLines = (
+//     layerData: GeoJSON.FeatureCollection<LineString>
+// ): GeoJSON.FeatureCollection<LineString> => {
+//     const overlapMap = findOverlapingLines(layerData);
+//     const overlapArray = manageOverlapingSegmentsData(overlapMap);
+//     const offsetLayer = applyOffset(overlapArray, layerData);
+//     return cleanLines(offsetLayer);
+// };
 
-const cleanLines = (geojson: GeoJSON.FeatureCollection<LineString>): GeoJSON.FeatureCollection<LineString> => {
-    geojson.features.forEach((feature) => {
+const cleanLines = (): void => {
+    serviceLocator.layerManager._layersByName['transitPaths'].source.data.features.forEach((feature) => {
         feature.geometry.coordinates = feature.geometry.coordinates.filter((value) => {
             return !Number.isNaN(value[0]) && !Number.isNaN(value[1]);
         });
     });
-    return geojson;
 };
 
-const applyOffset = (
-    overlapArray: OverlappingSegments[], 
-    layerData: GeoJSON.FeatureCollection<LineString>
-): GeoJSON.FeatureCollection<LineString> => {
+const applyOffset = (overlapArray: OverlappingSegments[]): void => {
     for (let i = 0; i < overlapArray.length; i++) {
         const nbOverlapped = overlapArray[i].directions.length;
         //console.log("j: " + nbOverlapped); 
@@ -95,38 +80,26 @@ const applyOffset = (
             const segment = overlapArray[i].geoData;
             if (overlapArray[i].directions[j]) {
                 const offsetLine = lineOffset(segment, 3 * sameDirectionOffset, { units: 'meters' });
-                replaceCoordinate(segment, offsetLine, overlapArray[i].crossingLines[j], layerData);
+                replaceCoordinate(segment, offsetLine, overlapArray[i].crossingLines[j]);
                 sameDirectionOffset++;
-                // if (i === 0 && sameDirectionOffset === 1) {
-                //     console.log(segment);
-                //     console.log(offsetLine);
-                //     console.log(replacedCoor);
-                // }
             } else {
                 const reverseCoordinates = segment.geometry.coordinates.slice().reverse();
                 const reverseLine = segment;
                 reverseLine.geometry.coordinates = reverseCoordinates;
                 const offsetLine = lineOffset(reverseLine, 3 * oppositeDirectionOffset, { units: 'meters' });
-                replaceCoordinate(reverseLine, offsetLine, overlapArray[i].crossingLines[j], layerData);
+                replaceCoordinate(reverseLine, offsetLine, overlapArray[i].crossingLines[j]);
                 oppositeDirectionOffset++;
-                // if (i === 0 && oppositeDirectionOffset === 1) {
-                //     console.log(reverseLine);
-                //     console.log(offsetLine);
-                //     console.log(replacedCoor);
-                // }
             }
         }
     }
-    return layerData;
 };
 
 const replaceCoordinate = (
     lineToReplace: GeoJSON.Feature<LineString>,
     offsetLine: GeoJSON.Feature<LineString>,
-    lineId: number,
-    layerData: GeoJSON.FeatureCollection<LineString>
+    lineId: number
 ): void => {
-    const line = getLineById(lineId, layerData);
+    const line = getLineById(lineId);
     const oldCoordinates = lineToReplace.geometry.coordinates;
     const length = oldCoordinates.length;
     // We go through the coordinates of every single LineString until we reach the starting point of the segment we want to replace
@@ -150,9 +123,9 @@ const replaceCoordinate = (
             break;
         }
     }
-    const lineIndex = getLineIndexById(lineId, layerData);
-    //const geoData = layerData as any;
-    layerData.features[lineIndex].geometry.coordinates = line.geometry.coordinates;
+    const lineIndex = getLineIndexById(lineId);
+    serviceLocator.layerManager._layersByName['transitPaths'].source.data.features[lineIndex].geometry.coordinates =
+        line.geometry.coordinates;
 };
 
 const findOverlapingLines = (layerData: GeoJSON.FeatureCollection<LineString>): Map<string, Set<number>> => {
@@ -178,16 +151,13 @@ const findOverlapingLines = (layerData: GeoJSON.FeatureCollection<LineString>): 
     return overlapMap;
 };
 
-const manageOverlapingSegmentsData = (
-    overlapMap: Map<string, Set<number>>,
-    layerData: GeoJSON.FeatureCollection<LineString>
-): OverlappingSegments[] => {
+const manageOverlapingSegmentsData = (overlapMap: Map<string, Set<number>>): OverlappingSegments[] => {
     const overlapArray: OverlappingSegments[] = [];
     overlapMap.forEach((value: any, key: any) => {
         const segmentDirections: Array<boolean> = [];
         const keyGeojson = JSON.parse(key);
         value.forEach((id: number) => {
-            const data = getLineById(id, layerData);
+            const data = getLineById(id);
             const coordinates = keyGeojson.geometry.coordinates;
             const firstPoint = coordinates[0];
             const lastPoint = coordinates[coordinates.length - 1];
@@ -214,8 +184,8 @@ const manageOverlapingSegmentsData = (
 
 
 
-const getLineById = (lineId: number, layerData: GeoJSON.FeatureCollection<LineString>): GeoJSON.Feature<LineString> => {
-    const features = layerData.features as any;
+const getLineById = (lineId: number): GeoJSON.Feature<LineString> => {
+    const features = serviceLocator.layerManager._layersByName['transitPaths'].source.data.features;
     for (let i = 0; i < features.length; i++) {
         if (features[i].id === lineId) {
             return features[i];
@@ -231,8 +201,8 @@ const getLineById = (lineId: number, layerData: GeoJSON.FeatureCollection<LineSt
     };
 };
 
-const getLineIndexById = (lineId: number, layerData: GeoJSON.FeatureCollection<LineString>): number => {
-    const features = layerData.features;
+const getLineIndexById = (lineId: number): number => {
+    const features = serviceLocator.layerManager._layersByName['transitPaths'].source.data.features;
     for (let i = 0; i < features.length; i++) {
         if (features[i].id === lineId) {
             return i;
@@ -240,4 +210,3 @@ const getLineIndexById = (lineId: number, layerData: GeoJSON.FeatureCollection<L
     }
     return -1;
 };
-

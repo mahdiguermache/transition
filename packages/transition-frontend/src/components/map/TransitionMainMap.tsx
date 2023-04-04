@@ -22,7 +22,7 @@ import MapPopupManager from 'chaire-lib-frontend/lib/services/map/MapPopupManage
 import serviceLocator from 'chaire-lib-common/lib/utils/ServiceLocator';
 import { getMapBoxDraw, removeMapBoxDraw } from 'chaire-lib-frontend/lib/services/map/MapPolygonService';
 import { findOverlappingFeatures } from 'chaire-lib-common/lib/services/geodata/FindOverlappingFeatures';
-import { manageOverlappingLines } from 'chaire-lib-common/lib/services/geodata/ManageOverlappingLines';
+//import { manageOverlappingLines } from 'chaire-lib-common/lib/services/geodata/ManageOverlappingLines';
 import Node from 'transition-common/lib/services/nodes/Node';
 import ConfirmModal from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
 import _cloneDeep from 'lodash.clonedeep';
