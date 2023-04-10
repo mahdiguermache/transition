@@ -1,0 +1,11 @@
+# Transition Docker file
+
+# Build json2capnp
+# the capnp crate does not build on buster or older so we need to use a separate image
+# since node does not provide a buster image.
+# Added benefit of splitting the image
+# We copy the executable later
+FROM debian:bullseye AS json2capnpbuild
+WORKDIR /app/services/json2capnp
+COPY services/json2capnp ./
+# RUN apt-get update && apt-get -y --no-install-recommends install cargo ca-certificates

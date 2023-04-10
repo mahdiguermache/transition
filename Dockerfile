@@ -9,11 +9,22 @@ FROM debian:bullseye AS json2capnpbuild
 WORKDIR /app/services/json2capnp
 COPY services/json2capnp ./
 RUN apt-get update && apt-get -y --no-install-recommends install cargo ca-certificates
+
+# Install Rust
+RUN apt-get install curl -y
+RUN curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain nightly -y
+ENV PATH=/root/.cargo/bin:$PATH
+
+# # Switch Rust to the nightly build
+RUN rustup toolchain install nightly
+
+# Install the cargo-ament-build plugin
+RUN cargo +nightly install -Z sparse-registry --debug cargo-ament-build 
+
 RUN cargo build
 
-
-# Build Node app
-FROM node:16-bullseye
+# # Build Node app
+FROM node:16-bullseye 
 WORKDIR /app
 # Install all the json package dependencies in an intermediary image. To do so, we copy each package.json files
 # and run yarn install which will download all the listed packages in the image.
@@ -24,7 +35,10 @@ COPY packages/chaire-lib-frontend packages/chaire-lib-frontend
 COPY packages/transition-common packages/transition-common
 COPY packages/transition-backend packages/transition-backend
 COPY packages/transition-frontend packages/transition-frontend
-RUN yarn install
+
+RUN npm config rm proxy
+RUN npm config rm https-proxy
+RUN yarn install --network-timeout=100000
 
 # Copy the rest. (node_modules are excluded in .dockerignore)
 COPY . /app
